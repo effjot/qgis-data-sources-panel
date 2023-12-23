@@ -4,7 +4,7 @@
 
 [general]
 name=Data Source Panel
-qgisMinimumVersion=3.28
+qgisMinimumVersion=3.22
 description=Panel with overview of layer data sources
 version=0.1
 author=Florian Jenn

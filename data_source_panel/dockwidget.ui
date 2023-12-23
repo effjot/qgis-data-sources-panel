@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DataSourcePanelDockWidgetBase</class>
+ <class>DataSourceDockWidgetBase</class>
  <widget class="QDockWidget" name="DataSourcePanelDockWidgetBase">
   <property name="geometry">
    <rect>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Data Source Panel</string>
+   <string>Data Sources</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">

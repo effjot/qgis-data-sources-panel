@@ -28,7 +28,7 @@ from qgis.PyQt.QtWidgets import QAction
 from .resources import *
 
 # Import the code for the DockWidget
-from .data_source_panel_dockwidget import DataSourcePanelDockWidget
+from .dockwidget import DataSourceDockWidget
 import os.path
 
 
@@ -221,7 +221,7 @@ class DataSourcePanel:
             #    removed on close (see self.onClosePlugin method)
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
-                self.dockwidget = DataSourcePanelDockWidget()
+                self.dockwidget = DataSourceDockWidget()
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
