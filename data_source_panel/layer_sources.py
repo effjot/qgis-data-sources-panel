@@ -1,6 +1,6 @@
 """Retrieve and process layer data sources"""
 
-from dataclasses import dataclass
+from dataclasses import astuple, dataclass, fields
 
 from qgis.core import (
     QgsProject,
@@ -14,6 +14,13 @@ class LayerSource:
     name: str
     provider: str
     location: str
+
+    def num_fields(self):
+        return len(fields(self))
+
+    def by_index(self, index: int):
+        if index >= 0 and index < self.num_fields():
+            return astuple(self)[index]
 
 
 class LayerSources:
@@ -49,6 +56,9 @@ class LayerSources:
 
     def num_layers(self):
         return len(self.sources)
+
+    def num_fields(self):
+        return len(fields(LayerSource))
 
     def by_index(self, index: int):
         if index >= 0 and index < self.num_layers():

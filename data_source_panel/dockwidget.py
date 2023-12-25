@@ -24,14 +24,32 @@
 
 import os
 
-from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
+from qgis.PyQt.QtCore import pyqtSignal, Qt
 
 from .layer_sources import LayerSources
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'dockwidget.ui'))
+
+
+class SourcesTableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data: LayerSources):
+        super().__init__()
+        self._data = data
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            src = self._data.by_index(index.row())
+            return src.by_index(index.column())
+
+    def rowCount(self, index):
+        return self._data.num_layers()
+
+    def columnCount(self, index):
+        return self._data.num_fields()
+
 
 
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
@@ -48,9 +66,13 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-        sources = LayerSources()
-        src = sources.by_index(0)
-        self.label.setText(f'Name: {src.name}, Provider: {src.provider}, Location: {src.location}')
+        self.sources = LayerSources()
+        self.model = SourcesTableModel(self.sources)
+        self.sources_table.setModel(self.model)
+
+#        self.setCentralWidget(self.table)
+        #src = sources.by_index(0)
+        #self.label.setText(f'Name: {src.name}, Provider: {src.provider}, Location: {src.location}')
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

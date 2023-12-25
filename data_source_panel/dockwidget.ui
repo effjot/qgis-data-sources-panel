@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DataSourceDockWidgetBase</class>
- <widget class="QDockWidget" name="DataSourcePanelDockWidgetBase">
+ <class>DataSourceDockWidget</class>
+ <widget class="QDockWidget" name="DataSourcePanelDockWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -16,12 +16,7 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Replace this QLabel
-with the desired
-plugin content.</string>
-      </property>
+     <widget class="QTableView" name="sources_table">
      </widget>
     </item>
    </layout>
