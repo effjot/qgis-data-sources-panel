@@ -27,7 +27,7 @@ import os
 from qgis.PyQt import QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 
-from .layer_sources import get_sources
+from .layer_sources import LayerSources
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -48,8 +48,8 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-        sources = get_sources()
-        src = sources[0]
+        sources = LayerSources()
+        src = sources.by_index(0)
         self.label.setText(f'Name: {src.name}, Provider: {src.provider}, Location: {src.location}')
 
     def closeEvent(self, event):
