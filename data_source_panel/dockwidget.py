@@ -152,9 +152,14 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
 
         providers = data.providers()
         for prov in providers:
-            item = TreeItem(prov, self.root_item)
-            self.root_item.append_child(item)
-            add_children_to_tree(data.by_provider(prov), item)
+            prov_item = TreeItem(prov, self.root_item)
+            self.root_item.append_child(prov_item)
+            prov_sources = data.by_provider(prov)
+            locations = prov_sources.locations()
+            for loc in locations:
+                loc_item = TreeItem(loc, prov_item)
+                prov_item.append_child(loc_item)
+                add_children_to_tree(prov_sources.by_location(loc), loc_item)
 
 
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):

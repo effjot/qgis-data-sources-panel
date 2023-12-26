@@ -64,8 +64,12 @@ class LayerSources:
         return len(fields(LayerSource))
 
     def providers(self):
-        prov = [s.provider for s in self.sources]
-        return list(set(prov))
+        provs = [s.provider for s in self.sources]
+        return list(set(provs))
+
+    def locations(self):
+        locs = [s.location for s in self.sources]
+        return list(set(locs))
 
     def by_index(self, index: int):
         if index >= 0 and index < self.num_layers():
