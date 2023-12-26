@@ -38,22 +38,25 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
         super().__init__()
         self._data = data
+        self._header = ['Layer', 'Provider', 'Storage Location']
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
             src = self._data.by_index(index.row())
-            return src.by_index(index.column())
+            return src.by_index(index.column() + 1)  # skip layerid field
 
     def rowCount(self, index):
         return self._data.num_layers()
 
     def columnCount(self, index):
-        return self._data.num_fields()
+        return self._data.num_fields() - 1  # skip layerid field
 
+    def headerData(self, index, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self._header[index]
 
 
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
-
     closingPlugin = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -68,11 +71,11 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.sources = LayerSources()
         self.model = SourcesTableModel(self.sources)
-        self.sources_table.setModel(self.model)
-
-#        self.setCentralWidget(self.table)
-        #src = sources.by_index(0)
-        #self.label.setText(f'Name: {src.name}, Provider: {src.provider}, Location: {src.location}')
+        self.proxy_model = QtCore.QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.model)
+        self.proxy_model.setSortCaseSensitivity(Qt.CaseInsensitive)
+        self.sources_table.setSortingEnabled(True)
+        self.sources_table.setModel(self.proxy_model)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
