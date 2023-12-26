@@ -57,10 +57,10 @@ class LayerSources:
                 layerid=layerid, name=layer.name(),
                 provider=provider, location=location))
 
-    def num_layers(self):
+    def num_layers(self) -> int:
         return len(self.sources)
 
-    def num_fields(self):
+    def num_fields(self) -> int:
         return len(fields(LayerSource))
 
     def providers(self):
@@ -71,7 +71,7 @@ class LayerSources:
         locs = [s.location for s in self.sources]
         return list(set(locs))
 
-    def by_index(self, index: int):
+    def by_index(self, index: int) -> LayerSource:
         if index >= 0 and index < self.num_layers():
             return self.sources[index]
 

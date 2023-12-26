@@ -24,6 +24,11 @@
 
 import os
 
+from qgis.core import (
+    QgsIconUtils,
+    QgsProject,
+    QgsProviderRegistry
+)
 from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, Qt
 
@@ -44,6 +49,11 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             src = self._data.by_index(index.row())
             return src.by_index(index.column() + 1)  # skip layerid field
+        if role == Qt.DecorationRole:
+            if index.column() == 0:
+                layerid = self._data.by_index(index.row()).layerid
+                return QgsIconUtils.iconForLayer(
+                    QgsProject.instance().mapLayer(layerid))
 
     def rowCount(self, index):
         return self._data.num_layers()
@@ -58,10 +68,20 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
 
 class TreeItem():
     """Item in simple tree data structure from https://doc.qt.io/qtforpython-5/overviews/qtwidgets-itemviews-simpletreemodel-example.html#simple-tree-model-example"""
-    def __init__(self, data, parent=None):
+    def __init__(self, data, data_type=None, parent=None):
         self.parent_item = parent
-        self.item_data = data
         self.children = []
+        self._data = data
+        self._icon = None
+        if data_type == 'provider':
+            self._icon = QgsProviderRegistry.instance().providerMetadata(
+                data).icon()
+        elif data_type == 'location':
+            self._icon = None
+        elif data_type == 'source':
+            self._data = data.name
+            self._icon = QgsIconUtils.iconForLayer(
+                QgsProject.instance().mapLayer(data.layerid))
 
     def append_child(self, item):
         self.children.append(item)
@@ -76,7 +96,7 @@ class TreeItem():
         return 1
 
     def data(self, column=None):  # at the moment no columns used
-        return self.item_data
+        return self._data
 
     def parent(self):
         return self.parent_item
@@ -85,6 +105,9 @@ class TreeItem():
         if self.parent_item:
             return self.parent_item.children.index(self)
         return 0
+
+    def icon(self):
+        return self._icon
 
 
 class SourcesTreeModel(QtCore.QAbstractItemModel):
@@ -99,6 +122,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         item = index.internalPointer()
         if role == Qt.DisplayRole:
             return item.data()  # at the moment no columns used
+        if role == Qt.DecorationRole:
+            return item.icon()
         return None
 
     def flags(self, index):
@@ -144,22 +169,19 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             return self.root_item.column_count()
 
     def setup_model_data(self, data):
-        def add_children_to_tree(sources, parent_item):
-            for src in sources:
-                data = src.name
-                item = TreeItem(data, parent_item)
-                parent_item.append_child(item)
-
         providers = data.providers()
         for prov in providers:
-            prov_item = TreeItem(prov, self.root_item)
+            prov_item = TreeItem(prov, 'provider', self.root_item)
             self.root_item.append_child(prov_item)
             prov_sources = data.by_provider(prov)
             locations = prov_sources.locations()
             for loc in locations:
-                loc_item = TreeItem(loc, prov_item)
+                loc_item = TreeItem(loc, 'location', prov_item)
                 prov_item.append_child(loc_item)
-                add_children_to_tree(prov_sources.by_location(loc), loc_item)
+                sources = prov_sources.by_location(loc)
+                for src in sources:
+                    src_item = TreeItem(src, 'source', loc_item)
+                    loc_item.append_child(src_item)
 
 
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
