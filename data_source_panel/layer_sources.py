@@ -30,6 +30,9 @@ class LayerSources:
         else:
             self.get_sources(QgsProject.instance().mapLayers())
 
+    def __iter__(self):
+        return iter(self.sources)
+
     def clear(self):
         self.sources = []
 
@@ -60,9 +63,21 @@ class LayerSources:
     def num_fields(self):
         return len(fields(LayerSource))
 
+    def providers(self):
+        prov = [s.provider for s in self.sources]
+        return list(set(prov))
+
     def by_index(self, index: int):
         if index >= 0 and index < self.num_layers():
             return self.sources[index]
 
     def by_layerid(self, layerid: str):
         pass
+
+    def by_provider(self, provider: str):
+        provider_sources = [s for s in self.sources if s.provider == provider]
+        return LayerSources(provider_sources)
+
+    def by_location(self, location: str):
+        location_sources = [s for s in self.sources if s.location == location]
+        return LayerSources(location_sources)

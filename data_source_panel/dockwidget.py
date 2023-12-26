@@ -56,6 +56,107 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
             return self._header[index]
 
 
+class TreeItem():
+    """Item in simple tree data structure from https://doc.qt.io/qtforpython-5/overviews/qtwidgets-itemviews-simpletreemodel-example.html#simple-tree-model-example"""
+    def __init__(self, data, parent=None):
+        self.parent_item = parent
+        self.item_data = data
+        self.children = []
+
+    def append_child(self, item):
+        self.children.append(item)
+
+    def child(self, row):
+        return self.children[row]
+
+    def child_count(self):
+        return len(self.children)
+
+    def column_count(self):  # at the moment no columns used
+        return 1
+
+    def data(self, column=None):  # at the moment no columns used
+        return self.item_data
+
+    def parent(self):
+        return self.parent_item
+
+    def row(self):
+        if self.parent_item:
+            return self.parent_item.children.index(self)
+        return 0
+
+
+class SourcesTreeModel(QtCore.QAbstractItemModel):
+    def __init__(self, data: LayerSources):
+        super().__init__()
+        self.root_item = TreeItem('Data Sources', parent=None)
+        self.setup_model_data(data)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        item = index.internalPointer()
+        if role == Qt.DisplayRole:
+            return item.data()  # at the moment no columns used
+        return None
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.NoItemFlags
+        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+
+    def index(self, row, column, parent):
+        if not self.hasIndex(row, column, parent):
+            return QtCore.QModelIndex()
+        if not parent.isValid():
+            parent_item = self.root_item
+        else:
+            parent_item = parent.internalPointer()
+        child_item = parent_item.child(row)
+        if child_item:
+            return self.createIndex(row, column, child_item)
+        else:
+            return QtCore.QModelIndex()
+
+    def parent(self, index):
+        if not index.isValid():
+            return QtCore.QModelIndex()
+        child_item = index.internalPointer()
+        parent_item = child_item.parent()
+        if parent_item == self.root_item:
+            return QtCore.QModelIndex()
+        return self.createIndex(parent_item.row(), 0, parent_item)
+
+    def rowCount(self, parent):
+        if parent.column() > 0:
+            return 0
+        if not parent.isValid():
+            parent_item = self.root_item
+        else:
+            parent_item = parent.internalPointer()
+        return parent_item.child_count()
+
+    def columnCount(self, parent):
+        if parent.isValid():
+            return parent.internalPointer().column_count()
+        else:
+            return self.root_item.column_count()
+
+    def setup_model_data(self, data):
+        def add_children_to_tree(sources, parent_item):
+            for src in sources:
+                data = src.name
+                item = TreeItem(data, parent_item)
+                parent_item.append_child(item)
+
+        providers = data.providers()
+        for prov in providers:
+            item = TreeItem(prov, self.root_item)
+            self.root_item.append_child(item)
+            add_children_to_tree(data.by_provider(prov), item)
+
+
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
 
@@ -70,12 +171,15 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setupUi(self)
 
         self.sources = LayerSources()
-        self.model = SourcesTableModel(self.sources)
+        self.table_model = SourcesTableModel(self.sources)
         self.proxy_model = QtCore.QSortFilterProxyModel()
-        self.proxy_model.setSourceModel(self.model)
+        self.proxy_model.setSourceModel(self.table_model)
         self.proxy_model.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.sources_table.setSortingEnabled(True)
         self.sources_table.setModel(self.proxy_model)
+        self.tree_model = SourcesTreeModel(self.sources)
+        self.sources_tree.setHeaderHidden(True)
+        self.sources_tree.setModel(self.tree_model)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

@@ -16,8 +16,10 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QTableView" name="sources_table">
-     </widget>
+     <widget class="QTreeView" name="sources_tree"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QTableView" name="sources_table"/>
     </item>
    </layout>
   </widget>
