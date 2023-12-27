@@ -25,12 +25,14 @@
 import os
 
 from qgis.core import (
+    QgsApplication,
     QgsIconUtils,
     QgsProject,
     QgsProviderRegistry
 )
 from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, Qt
+from qgis.PyQt.QtWidgets import QToolButton
 
 from .layer_sources import LayerSources
 
@@ -189,24 +191,47 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def __init__(self, parent=None):
         """Constructor."""
-        super(DataSourceDockWidget, self).__init__(parent)
+        super().__init__(parent)
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
         # http://doc.qt.io/qt-5/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.btn_tableview = QToolButton(self)
+        self.btn_treeview = QToolButton(self)
+        self.btn_tableview.setIconSize(QtCore.QSize(16, 16))
+        self.btn_treeview.setIconSize(QtCore.QSize(16, 16))
+        self.btn_tableview.setIcon(QgsApplication.getThemeIcon("/mActionOpenTable.svg"))
+        self.btn_treeview.setIcon(QgsApplication.getThemeIcon("/mIconTreeView.svg"))
+        self.btn_tableview.setCheckable(True)
+        self.btn_treeview.setCheckable(True)
+        self.btn_tableview.setChecked(True)
+        self.btn_tableview.clicked.connect(self.show_table)
+        self.btn_treeview.clicked.connect(self.show_tree)
+        self.toolbar.addWidget(self.btn_tableview)
+        self.toolbar.addWidget(self.btn_treeview)
 
         self.sources = LayerSources()
         self.table_model = SourcesTableModel(self.sources)
         self.proxy_model = QtCore.QSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.table_model)
         self.proxy_model.setSortCaseSensitivity(Qt.CaseInsensitive)
-        self.sources_table.setSortingEnabled(True)
-        self.sources_table.setModel(self.proxy_model)
+        self.v_sources_table.setSortingEnabled(True)
+        self.v_sources_table.setModel(self.proxy_model)
         self.tree_model = SourcesTreeModel(self.sources)
-        self.sources_tree.setHeaderHidden(True)
-        self.sources_tree.setModel(self.tree_model)
+        self.v_sources_tree.setHeaderHidden(True)
+        self.v_sources_tree.setModel(self.tree_model)
+
+    def show_table(self):
+        self.btn_tableview.setChecked(True)
+        self.btn_treeview.setChecked(False)
+        self.stk_sourcesview.setCurrentIndex(0)
+
+    def show_tree(self):
+        self.btn_tableview.setChecked(False)
+        self.btn_treeview.setChecked(True)
+        self.stk_sourcesview.setCurrentIndex(1)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

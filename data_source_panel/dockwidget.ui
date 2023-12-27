@@ -6,20 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>232</width>
-    <height>141</height>
+    <width>200</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Data Sources</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QTreeView" name="sources_tree"/>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QToolBar" name="toolbar">
+      <property name="floatable"><bool>false</bool></property>
+     </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QTableView" name="sources_table"/>
+    <item>
+     <widget class="QStackedWidget" name="stk_sourcesview">
+      <widget class="QTableView" name="v_sources_table"/>
+      <widget class="QTreeView" name="v_sources_tree"/>
+     </widget>
     </item>
    </layout>
   </widget>
