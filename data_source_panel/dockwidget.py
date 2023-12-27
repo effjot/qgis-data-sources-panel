@@ -33,7 +33,7 @@ from qgis.core import (
 )
 from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, Qt
-from qgis.PyQt.QtWidgets import QToolButton
+from qgis.PyQt.QtWidgets import QAction
 
 from .layer_sources import LayerSources, nice_provider_name, locations_common_part
 
@@ -51,7 +51,10 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             src = self._data.by_index(index.row())
-            return str(src.by_index(index.column() + 1))  # skip layerid field
+            item = src.by_index(index.column() + 1)  # skip layerid field
+            if index.column() == 1:
+                return nice_provider_name(item)
+            return str(item)
         if role == Qt.DecorationRole:
             if index.column() == 0:
                 layerid = self._data.by_index(index.row()).layerid
@@ -79,6 +82,7 @@ class TreeItem():
         if data_type == 'provider':
             self._icon = QgsProviderRegistry.instance().providerMetadata(
                 data).icon()
+            self._data = nice_provider_name(data)
         elif data_type == 'location':
             self._icon = None
         elif data_type == 'source':
@@ -228,19 +232,25 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # http://doc.qt.io/qt-5/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        self.btn_tableview = QToolButton(self)
-        self.btn_treeview = QToolButton(self)
-        self.btn_tableview.setIconSize(QtCore.QSize(16, 16))
-        self.btn_treeview.setIconSize(QtCore.QSize(16, 16))
-        self.btn_tableview.setIcon(QgsApplication.getThemeIcon("/mActionOpenTable.svg"))
-        self.btn_treeview.setIcon(QgsApplication.getThemeIcon("/mIconTreeView.svg"))
-        self.btn_tableview.setCheckable(True)
-        self.btn_treeview.setCheckable(True)
-        self.btn_tableview.setChecked(True)
-        self.btn_tableview.clicked.connect(self.show_table)
-        self.btn_treeview.clicked.connect(self.show_tree)
-        self.toolbar.addWidget(self.btn_tableview)
-        self.toolbar.addWidget(self.btn_treeview)
+
+        # Layout like QGIS/src/gui/qgsbrowserwidget.cpp and QGIS/src/ui/qgsbrowserwidgetbase.u
+        self.vertical_layout.setContentsMargins(0, 0, 0, 0)
+        self.vertical_layout.setSpacing(0)
+
+        # Toolbar
+        self.act_tableview = QAction(
+            QgsApplication.getThemeIcon("/mActionOpenTable.svg"),
+            '&Table View', self)
+        self.act_treeview = QAction(
+            QgsApplication.getThemeIcon("/mIconTreeView.svg"),
+            'T&ree View', self)
+        self.act_tableview.setCheckable(True)
+        self.act_treeview.setCheckable(True)
+        self.act_tableview.setChecked(True)
+        self.act_tableview.triggered.connect(self.show_table)
+        self.act_treeview.triggered.connect(self.show_tree)
+        self.toolbar.addAction(self.act_tableview)
+        self.toolbar.addAction(self.act_treeview)
 
         self.sources = LayerSources()
         self.table_model = SourcesTableModel(self.sources)
@@ -254,13 +264,13 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.v_sources_tree.setModel(self.tree_model)
 
     def show_table(self):
-        self.btn_tableview.setChecked(True)
-        self.btn_treeview.setChecked(False)
+        self.act_tableview.setChecked(True)
+        self.act_treeview.setChecked(False)
         self.stk_sourcesview.setCurrentIndex(0)
 
     def show_tree(self):
-        self.btn_tableview.setChecked(False)
-        self.btn_treeview.setChecked(True)
+        self.act_tableview.setChecked(False)
+        self.act_treeview.setChecked(True)
         self.stk_sourcesview.setCurrentIndex(1)
 
     def closeEvent(self, event):
