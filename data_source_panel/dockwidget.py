@@ -23,6 +23,7 @@
 """
 
 import os
+from pathlib import Path
 
 from qgis.core import (
     QgsApplication,
@@ -34,7 +35,7 @@ from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, Qt
 from qgis.PyQt.QtWidgets import QToolButton
 
-from .layer_sources import LayerSources
+from .layer_sources import LayerSources, nice_provider_name, locations_common_part
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -191,13 +192,20 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             self.root_item.append_child(prov_item)
             prov_sources = data.by_provider(prov)
             locations = prov_sources.locations()
+            loc_common = locations_common_part(locations)
             for loc in locations:
                 if loc.is_empty():
                     loc_item = prov_item
                 elif loc.is_deep():
                     loc_item = TreeItem(str(loc.hierarchical[-1]),
                                         'location', parent=None)
-                    where = loc.hierarchical[:-1]
+                    if loc_common and prov in ('ogr', 'gdal'):
+                        common_part = str(
+                            Path().joinpath(*loc.hierarchical[:loc_common]))
+                        remainder = loc.hierarchical[loc_common:-1]
+                        where = (common_part,) + remainder
+                    else:
+                        where = loc.hierarchical[:-1]
                     prov_item.insert_in_tree(loc_item, where)
                 else:
                     loc_item = TreeItem(str(loc), 'location', prov_item)

@@ -72,7 +72,7 @@ class LayerSources:
                 schema = decoded['schema']
                 table = decoded['table']
                 location = StorageLocation(
-                    (db, schema, table),
+                    ('DB ' + db, 'Schema ' + schema, table),
                     f'{db}: "{schema}"."{table}"')
             elif provider == 'memory':
                 location = StorageLocation()
@@ -115,3 +115,30 @@ class LayerSources:
     def by_location(self, location: str):
         location_sources = [s for s in self.sources if s.location == location]
         return LayerSources(location_sources)
+
+
+def nice_provider_name(provider):
+    """Nice / properly capitalised provider names. (Couldn’t find API for this.)
+
+    Using function instead of just a dict for easier drop-in replacement
+    if I find API for nice provider names.
+    """
+    names = {
+        'ogr': 'OGR',
+        'gdal': 'GDAL',
+        'wms': 'WMS/WMTS',
+        'WFS': 'WFS',
+        'postgres': 'PostgreSQL',
+        'memory': 'Memory / Scratch Layer'
+    }
+    return names.get(provider, provider)
+
+
+def locations_common_part(locations):
+    if not all([loc.is_deep() for loc in locations]):
+        return None
+    for i, elem in enumerate(locations[0].hierarchical):
+        if any([len(loc.hierarchical) <= i or loc.hierarchical[i] != elem
+                for loc in locations[1:]]):
+            return i
+    return None
