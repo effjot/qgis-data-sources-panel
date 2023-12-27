@@ -1,6 +1,7 @@
 """Retrieve and process layer data sources"""
 
 from dataclasses import astuple, dataclass, fields
+from typing import Union
 
 from qgis.core import (
     QgsProject,
@@ -8,19 +9,34 @@ from qgis.core import (
 )
 
 
+@dataclass(frozen=True)  # frozen for hashable class, necessary for set()
+class StorageLocation:
+    hierarchical: Union[str, list[str]] = None
+    textual: str = ''
+
+    def __str__(self):
+        if self.textual:
+            return self.textual
+        if type(self.hierarchical) is str:
+            return self.hierarchical
+        if not self.hierarchical:
+            return ''
+        return ' '.join(self.hierarchical)
+
+
 @dataclass
 class LayerSource:
     layerid: str
     name: str
     provider: str
-    location: str
+    location: StorageLocation
 
     def num_fields(self):
         return len(fields(self))
 
     def by_index(self, index: int):
         if index >= 0 and index < self.num_fields():
-            return astuple(self)[index]
+            return getattr(self, fields(self)[index].name)
 
 
 class LayerSources:
@@ -45,14 +61,20 @@ class LayerSources:
             provider = layer.dataProvider().name()
             decoded = QgsProviderRegistry.instance().decodeUri(provider, layer.publicSource())
             if provider == 'postgres':
-                location = '{db}: "{schema}"."{table}"'.format(
-                    db=decoded['dbname'], schema=decoded['schema'], table=decoded['table'])
+                db = decoded['dbname']
+                schema = decoded['schema']
+                table = decoded['table']
+                location = StorageLocation(
+                    (db, schema, table),
+                    f'{db}: "{schema}"."{table}"')
             elif provider == 'memory':
-                location = '(memory)'
+                location = StorageLocation()
             elif 'path' in decoded:
-                location = decoded['path']
+                location = StorageLocation(decoded['path'])
+#            elif 'url' in decoded:
+#                location = StorageLocation(decoded['url'])
             else:
-                location = '(unknown)'
+                location = StorageLocation(None, '(unknown)')
             self.add_source(LayerSource(
                 layerid=layerid, name=layer.name(),
                 provider=provider, location=location))

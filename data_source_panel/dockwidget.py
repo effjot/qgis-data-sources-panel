@@ -50,7 +50,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             src = self._data.by_index(index.row())
-            return src.by_index(index.column() + 1)  # skip layerid field
+            return str(src.by_index(index.column() + 1))  # skip layerid field
         if role == Qt.DecorationRole:
             if index.column() == 0:
                 layerid = self._data.by_index(index.row()).layerid
@@ -178,7 +178,7 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             prov_sources = data.by_provider(prov)
             locations = prov_sources.locations()
             for loc in locations:
-                loc_item = TreeItem(loc, 'location', prov_item)
+                loc_item = TreeItem(str(loc), 'location', prov_item)
                 prov_item.append_child(loc_item)
                 sources = prov_sources.by_location(loc)
                 for src in sources:
