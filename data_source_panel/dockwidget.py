@@ -84,9 +84,22 @@ class TreeItem():
             self._data = data.name
             self._icon = QgsIconUtils.iconForLayer(
                 QgsProject.instance().mapLayer(data.layerid))
+        self.data_type = data_type
 
     def append_child(self, item):
         self.children.append(item)
+
+    def insert_in_tree(self, item, where=None):
+        if not where:
+            item.parent_item = self
+            self.append_child(item)
+            return
+        insert_at = where[0]
+        if insert_at not in [c.data() for c in self.children]:
+            new_child = TreeItem(insert_at, item.data_type, parent=self)
+            self.append_child(new_child)
+        row = [c.data() for c in self.children].index(insert_at)
+        self.child(row).insert_in_tree(item, where[1:])
 
     def child(self, row):
         return self.children[row]
@@ -104,6 +117,7 @@ class TreeItem():
         return self.parent_item
 
     def row(self):
+        """Row number of item for non-toplevel items; 0 for toplevel items"""
         if self.parent_item:
             return self.parent_item.children.index(self)
         return 0
@@ -178,8 +192,16 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             prov_sources = data.by_provider(prov)
             locations = prov_sources.locations()
             for loc in locations:
-                loc_item = TreeItem(str(loc), 'location', prov_item)
-                prov_item.append_child(loc_item)
+                if loc.is_empty():
+                    loc_item = prov_item
+                elif loc.is_deep():
+                    loc_item = TreeItem(str(loc.hierarchical[-1]),
+                                        'location', parent=None)
+                    where = loc.hierarchical[:-1]
+                    prov_item.insert_in_tree(loc_item, where)
+                else:
+                    loc_item = TreeItem(str(loc), 'location', prov_item)
+                    prov_item.append_child(loc_item)
                 sources = prov_sources.by_location(loc)
                 for src in sources:
                     src_item = TreeItem(src, 'source', loc_item)

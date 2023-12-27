@@ -1,6 +1,7 @@
 """Retrieve and process layer data sources"""
 
 from dataclasses import astuple, dataclass, fields
+from pathlib import Path
 from typing import Union
 
 from qgis.core import (
@@ -11,17 +12,23 @@ from qgis.core import (
 
 @dataclass(frozen=True)  # frozen for hashable class, necessary for set()
 class StorageLocation:
-    hierarchical: Union[str, list[str]] = None
+    hierarchical: Union[str, tuple[str]] = None
     textual: str = ''
+
+    def is_empty(self):
+        return not self.hierarchical
+
+    def is_deep(self):
+        return not self.is_empty() and type(self.hierarchical) is tuple
 
     def __str__(self):
         if self.textual:
             return self.textual
-        if type(self.hierarchical) is str:
-            return self.hierarchical
-        if not self.hierarchical:
+        if self.is_empty():
             return ''
-        return ' '.join(self.hierarchical)
+        if self.is_deep():
+            return ' '.join(self.hierarchical)
+        return self.hierarchical
 
 
 @dataclass
@@ -70,9 +77,10 @@ class LayerSources:
             elif provider == 'memory':
                 location = StorageLocation()
             elif 'path' in decoded:
-                location = StorageLocation(decoded['path'])
-#            elif 'url' in decoded:
-#                location = StorageLocation(decoded['url'])
+                path = decoded['path']
+                location = StorageLocation(Path(path).parts, path)
+            elif 'url' in decoded:
+                location = StorageLocation(decoded['url'])
             else:
                 location = StorageLocation(None, '(unknown)')
             self.add_source(LayerSource(
