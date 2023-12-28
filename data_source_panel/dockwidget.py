@@ -277,9 +277,9 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.v_sources_tree.setHeaderHidden(True)
         self.v_sources_tree.setModel(self.tree_model)
 
-        self.layer_tree_root = QgsProject.instance().layerTreeRoot()
-        self.layer_tree_root.addedChildren.connect(self.update_models)
-        self.layer_tree_root.removedChildren.connect(self.update_models)
+        self.proj = QgsProject.instance()
+        self.proj.layersAdded.connect(self.update_models)
+        self.proj.layersRemoved.connect(self.update_models)
 
     def show_table(self):
         self.act_tableview.setChecked(True)
