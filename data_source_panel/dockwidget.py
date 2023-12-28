@@ -44,6 +44,9 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         super().__init__()
         self._data = data
         self._header = ['Layer', 'Provider', 'Storage Location']
+        self._icons = [QgsIconUtils.iconForLayer(
+                           QgsProject.instance().mapLayer(src.layerid))
+                       for src in data]
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -51,9 +54,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
             return src.by_index(index.column() + 1)  # skip layerid field
         if role == Qt.DecorationRole:
             if index.column() == 0:
-                layerid = self._data.by_index(index.row()).layerid
-                return QgsIconUtils.iconForLayer(
-                    QgsProject.instance().mapLayer(layerid))
+                return self._icons[index.row()]
 
     def rowCount(self, index):
         return self._data.num_layers()
