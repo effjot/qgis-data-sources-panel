@@ -26,8 +26,10 @@ import os
 from pathlib import Path
 
 from qgis.core import (
+    Qgis,
     QgsApplication,
     QgsIconUtils,
+    QgsMessageLog,
     QgsProject,
     QgsProviderRegistry
 )
@@ -70,6 +72,13 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def headerData(self, index, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self._header[index]
+
+    def update(self):
+        QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
+        self._data.update()
+        QgsMessageLog.logMessage(f'  after: {self.rowCount(0)=}', 'DSP', Qgis.Info)
+        self.layoutChanged.emit()
+        QgsMessageLog.logMessage(f'  signal emitted', 'DSP', Qgis.Info)
 
 
 class TreeItem():
@@ -263,6 +272,10 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.v_sources_tree.setHeaderHidden(True)
         self.v_sources_tree.setModel(self.tree_model)
 
+        self.layer_tree_root = QgsProject.instance().layerTreeRoot()
+        self.layer_tree_root.addedChildren.connect(self.update_models)
+        self.layer_tree_root.removedChildren.connect(self.update_models)
+
     def show_table(self):
         self.act_tableview.setChecked(True)
         self.act_treeview.setChecked(False)
@@ -272,6 +285,9 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.act_tableview.setChecked(False)
         self.act_treeview.setChecked(True)
         self.stk_sourcesview.setCurrentIndex(1)
+
+    def update_models(self):
+        self.table_model.update()
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

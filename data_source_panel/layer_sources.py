@@ -48,10 +48,7 @@ class LayerSource:
 
 class LayerSources:
     def __init__(self, sources=None):
-        if sources:
-            self.sources = sources
-        else:
-            self.get_sources(QgsProject.instance().mapLayers())
+        self.update(sources)
 
     def __iter__(self):
         return iter(self.sources)
@@ -59,10 +56,16 @@ class LayerSources:
     def clear(self):
         self.sources = []
 
+    def update(self,sources=None):
+        if sources:
+            self.sources = sources
+        else:
+            self.get_sources_from_maplayers(QgsProject.instance().mapLayers())
+
     def add_source(self, source: LayerSource):
         self.sources.append(source)
 
-    def get_sources(self, layers: dict):
+    def get_sources_from_maplayers(self, layers: dict):
         self.clear()
         for layerid, layer in layers.items():
             provider = layer.dataProvider().name()
