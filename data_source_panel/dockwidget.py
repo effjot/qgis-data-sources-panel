@@ -78,12 +78,11 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
             return self._header[index]
 
     def update(self):
-        QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
-        self._data.update()
+        # QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self.get_icons()
-        QgsMessageLog.logMessage(f'  after: {self.rowCount(0)=}', 'DSP', Qgis.Info)
+        # QgsMessageLog.logMessage(f'  after: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self.layoutChanged.emit()
-        QgsMessageLog.logMessage(f'  signal emitted', 'DSP', Qgis.Info)
+        # QgsMessageLog.logMessage('  signal emitted', 'DSP', Qgis.Info)
 
 
 class TreeItem():
@@ -120,6 +119,13 @@ class TreeItem():
         row = [c.data() for c in self.children].index(insert_at)
         self.child(row).insert_in_tree(item, where[1:])
 
+    def remove_children(self):
+        if not self.children:
+            return None
+        for child in self.children:
+            child.remove_children()
+        self.children = []
+
     def child(self, row):
         return self.children[row]
 
@@ -148,8 +154,12 @@ class TreeItem():
 class SourcesTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, data: LayerSources):
         super().__init__()
+        self._data = data  # original / “flat” data
         self.root_item = TreeItem('Data Sources', parent=None)
-        self.setup_model_data(data)
+        self.setup_model_tree(data)
+
+    def clear(self):
+        self.root_item.remove_children()
 
     def data(self, index, role):
         if not index.isValid():
@@ -203,7 +213,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         else:
             return self.root_item.column_count()
 
-    def setup_model_data(self, data):
+    def setup_model_tree(self, data):
+        self.clear()
         providers = data.providers()
         for prov in providers:
             prov_item = TreeItem(prov, 'provider', self.root_item)
@@ -232,6 +243,13 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
                 for src in sources:
                     src_item = TreeItem(src, 'source', loc_item)
                     loc_item.append_child(src_item)
+
+    def update(self):
+        # QgsMessageLog.logMessage(f'update() before: {self._data.num_layers()=}', 'DSP', Qgis.Info)
+        self.beginResetModel()
+        self.setup_model_tree(self._data)
+        # QgsMessageLog.logMessage(f'  after: {self._data.num_layers()=}', 'DSP', Qgis.Info)
+        self.endResetModel()
 
 
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
@@ -292,7 +310,9 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.stk_sourcesview.setCurrentIndex(1)
 
     def update_models(self):
+        self.sources.update()
         self.table_model.update()
+        self.tree_model.update()
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
