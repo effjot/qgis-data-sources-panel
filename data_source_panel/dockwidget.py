@@ -48,7 +48,13 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
         super().__init__()
         self._data = data
+        self.get_icons()
         self._header = ['Layer', 'Provider', 'Storage Location']
+
+    def get_icons(self):
+        self._icons = [QgsIconUtils.iconForLayer(
+                           QgsProject.instance().mapLayer(src.layerid))
+                       for src in self._data]
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -59,9 +65,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
             return str(item)
         if role == Qt.DecorationRole:
             if index.column() == 0:
-                layerid = self._data.by_index(index.row()).layerid
-                return QgsIconUtils.iconForLayer(
-                    QgsProject.instance().mapLayer(layerid))
+                return self._icons[index.row()]
 
     def rowCount(self, index):
         return self._data.num_layers()
@@ -76,6 +80,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def update(self):
         QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self._data.update()
+        self.get_icons()
         QgsMessageLog.logMessage(f'  after: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self.layoutChanged.emit()
         QgsMessageLog.logMessage(f'  signal emitted', 'DSP', Qgis.Info)
