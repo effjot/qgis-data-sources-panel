@@ -5,9 +5,11 @@ from pathlib import Path
 from typing import Union
 
 from qgis.core import (
+    QgsIconUtils,
     QgsProject,
     QgsProviderRegistry
 )
+from qgis.PyQt.QtGui import QIcon
 
 
 @dataclass(frozen=True)  # frozen for hashable class, necessary for set()
@@ -37,6 +39,7 @@ class LayerSource:
     name: str
     provider: str
     location: StorageLocation
+    icon: QIcon
 
     def num_fields(self):
         return len(fields(self))
@@ -86,9 +89,11 @@ class LayerSources:
                 location = StorageLocation(decoded['url'])
             else:
                 location = StorageLocation(None, '(unknown)')
+            icon = QgsIconUtils.iconForLayer(
+                QgsProject.instance().mapLayer(layerid))
             self.add_source(LayerSource(
                 layerid=layerid, name=layer.name(),
-                provider=provider, location=location))
+                provider=provider, location=location, icon=icon))
 
     def num_layers(self) -> int:
         return len(self.sources)

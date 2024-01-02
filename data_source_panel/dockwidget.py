@@ -48,13 +48,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
         super().__init__()
         self._data = data
-        self.get_icons()
         self._header = ['Layer', 'Provider', 'Storage Location']
-
-    def get_icons(self):
-        self._icons = [QgsIconUtils.iconForLayer(
-                           QgsProject.instance().mapLayer(src.layerid))
-                       for src in self._data]
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -65,13 +59,13 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
             return str(item)
         if role == Qt.DecorationRole:
             if index.column() == 0:
-                return self._icons[index.row()]
+                return self._data.by_index(index.row()).icon  # icon field
 
     def rowCount(self, index):
         return self._data.num_layers()
 
     def columnCount(self, index):
-        return self._data.num_fields() - 1  # skip layerid field
+        return self._data.num_fields() - 2  # skip layerid, icon fields
 
     def headerData(self, index, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
@@ -99,9 +93,8 @@ class TreeItem():
         elif data_type == 'location':
             self._icon = None
         elif data_type == 'source':
+            self._icon = data.icon
             self._data = data.name
-            self._icon = QgsIconUtils.iconForLayer(
-                QgsProject.instance().mapLayer(data.layerid))
         self.data_type = data_type
 
     def append_child(self, item):
