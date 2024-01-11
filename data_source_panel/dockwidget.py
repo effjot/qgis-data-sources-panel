@@ -29,6 +29,7 @@ from qgis.core import (
     Qgis,
     QgsApplication,
     QgsIconUtils,
+    QgsLayerTree,
     QgsMessageLog,
     QgsProject,
     QgsProviderRegistry
@@ -78,6 +79,10 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
 
     def remove_source(self, src):
         self.layoutChanged.emit()
+
+    def rename_layer(self, src):
+        row = self._data.index(src)
+        self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [Qt.DisplayRole])
 
     def update(self):
         # QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
@@ -376,6 +381,7 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.proj = QgsProject.instance()
         self.proj.layersAdded.connect(self.add_layers)
         self.proj.layersWillBeRemoved.connect(self.remove_layers)
+        QgsProject.instance().layerTreeRoot().nameChanged.connect(self.rename_layer)
 
     def show_table(self):
         self.act_tableview.setChecked(True)
@@ -404,6 +410,13 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.table_model.remove_source(src)
             self.tree_model.remove_source(src)
             self.sources.remove_layer(QgsProject.instance().mapLayer(layerid))
+
+    def rename_layer(self, node, name):
+        if not QgsLayerTree.isLayer(node):
+            return
+        layer = node.layer()
+        src = self.sources.rename_layer(layer)
+        self.table_model.rename_layer(src)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

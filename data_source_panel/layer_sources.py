@@ -75,6 +75,11 @@ class LayerSources:
         self.sources.remove(src)
         return src
 
+    def rename_layer(self, layer):
+        src = self.by_layerid(layer.id())
+        src.name = layer.name()
+        return src
+
     def add_source(self, source: LayerSource):
         self.sources.append(source)
 
@@ -126,6 +131,9 @@ class LayerSources:
     def locations(self):
         locs = [s.location for s in self.sources]
         return list(set(locs))
+
+    def index(self, src):
+        return self.sources.index(src)
 
     def by_index(self, index: int) -> LayerSource:
         if index >= 0 and index < self.num_layers():
