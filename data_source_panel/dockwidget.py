@@ -44,6 +44,8 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'dockwidget.ui'))
 
 
+# FIXME: Models don’t handle renames
+
 class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
         super().__init__()
@@ -71,6 +73,12 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self._header[index]
 
+    def add_source(self, src):
+        self.layoutChanged.emit()
+
+    def remove_source(self, src):
+        self.layoutChanged.emit()
+
     def update(self):
         # QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self.get_icons()
@@ -78,6 +86,8 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         self.layoutChanged.emit()
         # QgsMessageLog.logMessage('  signal emitted', 'DSP', Qgis.Info)
 
+
+# FIXME: Tree model is too complicated. Try to generate return values on the fly from LayerSources
 
 class TreeItem():
     """Item in simple tree data structure from https://doc.qt.io/qtforpython-5/overviews/qtwidgets-itemviews-simpletreemodel-example.html#simple-tree-model-example"""
@@ -92,7 +102,7 @@ class TreeItem():
             self._data = nice_provider_name(data)
         elif data_type == 'location':
             self._icon = None
-        elif data_type == 'source':
+        elif data_type == 'layer':
             self._icon = data.icon
             self._data = data.name
         self.data_type = data_type
@@ -100,17 +110,23 @@ class TreeItem():
     def append_child(self, item):
         self.children.append(item)
 
-    def insert_in_tree(self, item, where=None):
+    def insert_in_tree(self, item, where=None, insert_if_exists=True):
         if not where:
+            exists = self.child_by_data(item.data())
+            if exists and not insert_if_exists:
+                return exists
             item.parent_item = self
             self.append_child(item)
-            return
+            return item
         insert_at = where[0]
         if insert_at not in [c.data() for c in self.children]:
             new_child = TreeItem(insert_at, item.data_type, parent=self)
             self.append_child(new_child)
         row = [c.data() for c in self.children].index(insert_at)
-        self.child(row).insert_in_tree(item, where[1:])
+        return self.child(row).insert_in_tree(item, where[1:], insert_if_exists)
+
+    def remove_child(self, item):
+        self.children.remove(item)
 
     def remove_children(self):
         if not self.children:
@@ -121,6 +137,13 @@ class TreeItem():
 
     def child(self, row):
         return self.children[row]
+
+    def child_by_data(self, data):
+        children_data = [c.data() for c in self.children]
+        if data in children_data:
+            return self.child(children_data.index(data))
+        else:
+            return None
 
     def child_count(self):
         return len(self.children)
@@ -206,6 +229,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         else:
             return self.root_item.column_count()
 
+    # FIXME: factor out common code from setup_model_tree, add_source, remove_source
+
     def setup_model_tree(self, data):
         self.clear()
         providers = data.providers()
@@ -214,28 +239,88 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             self.root_item.append_child(prov_item)
             prov_sources = data.by_provider(prov)
             locations = prov_sources.locations()
-            loc_common = locations_common_part(locations)
+            # loc_common = locations_common_part(locations)  # FIXME: for no, skip flattening common parts; first, get adding and removing right
             for loc in locations:
                 if loc.is_empty():
                     loc_item = prov_item
                 elif loc.is_deep():
                     loc_item = TreeItem(str(loc.hierarchical[-1]),
                                         'location', parent=None)
-                    if loc_common and prov in ('ogr', 'gdal'):
-                        common_part = str(
-                            Path().joinpath(*loc.hierarchical[:loc_common]))
-                        remainder = loc.hierarchical[loc_common:-1]
-                        where = (common_part,) + remainder
-                    else:
-                        where = loc.hierarchical[:-1]
+                    # if loc_common and prov in ('ogr', 'gdal'):
+                    #     common_part = str(
+                    #         Path().joinpath(*loc.hierarchical[:loc_common]))
+                    #     remainder = loc.hierarchical[loc_common:-1]
+                    #     where = (common_part,) + remainder
+                    # else:
+                    where = loc.hierarchical[:-1]
                     prov_item.insert_in_tree(loc_item, where)
                 else:
                     loc_item = TreeItem(str(loc), 'location', prov_item)
                     prov_item.append_child(loc_item)
                 sources = prov_sources.by_location(loc)
                 for src in sources:
-                    src_item = TreeItem(src, 'source', loc_item)
+                    src_item = TreeItem(src, 'layer', loc_item)
                     loc_item.append_child(src_item)
+
+    def add_source(self, src):
+        self.layoutAboutToBeChanged.emit()
+        prov = src.provider
+        prov_item = self.root_item.child_by_data(nice_provider_name(prov))
+        if not prov_item:
+            prov_item = TreeItem(prov, 'provider', self.root_item)
+            self.root_item.append_child(prov_item)
+        prov_sources = self._data.by_provider(prov)
+        locations = prov_sources.locations()
+        # loc_common = locations_common_part(locations)  # FIXME: handle case with new common_part
+        loc = src.location
+        if loc.is_empty():
+            loc_item = prov_item
+        elif loc.is_deep():
+            loc_item = TreeItem(str(loc.hierarchical[-1]),
+                                'location', parent=None)
+            # if loc_common and prov in ('ogr', 'gdal'):
+            #     common_part = str(
+            #         Path().joinpath(*loc.hierarchical[:loc_common]))
+            #     remainder = loc.hierarchical[loc_common:-1]
+            #     where = (common_part,) + remainder
+            # else:
+            where = loc.hierarchical[:-1]
+            loc_item = prov_item.insert_in_tree(loc_item, where, insert_if_exists=False)
+        else:
+            loc_item = prov_item.child_by_data(str(loc))
+            if not loc_item:
+                loc_item = TreeItem(str(loc), 'location', prov_item)
+            prov_item.append_child(loc_item)
+        src_item = TreeItem(src, 'layer', loc_item)
+        loc_item.append_child(src_item)
+        self.layoutChanged.emit()
+
+    def remove_source(self, src):
+        self.layoutAboutToBeChanged.emit()
+        prov = src.provider
+        prov_item = self.root_item.child_by_data(nice_provider_name(prov))
+        prov_sources = self._data.by_provider(prov)
+        locations = prov_sources.locations()
+        # loc_common = locations_common_part(locations)
+        loc = src.location
+        if loc.is_empty():
+            loc_item = prov_item
+        elif loc.is_deep():
+            # if loc_common and prov in ('ogr', 'gdal'):
+            #     common_part = str(
+            #         Path().joinpath(*loc.hierarchical[:loc_common]))
+            #     remainder = loc.hierarchical[loc_common:]
+            #     where = (common_part,) + remainder
+            # else:
+            where = loc.hierarchical
+            loc_item = prov_item
+            for node in where:
+                loc_item = loc_item.child_by_data(node)
+        else:
+            loc_item = prov_item.child_by_data(str(loc))
+        src_item = loc_item.child_by_data(src.name)
+        loc_item.remove_child(src_item)
+        self.layoutChanged.emit()
 
     def update(self):
         # QgsMessageLog.logMessage(f'update() before: {self._data.num_layers()=}', 'DSP', Qgis.Info)
@@ -289,8 +374,8 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.v_sources_tree.setModel(self.tree_model)
 
         self.proj = QgsProject.instance()
-        self.proj.layersAdded.connect(self.update_models)
-        self.proj.layersRemoved.connect(self.update_models)
+        self.proj.layersAdded.connect(self.add_layers)
+        self.proj.layersWillBeRemoved.connect(self.remove_layers)
 
     def show_table(self):
         self.act_tableview.setChecked(True)
@@ -306,6 +391,19 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.sources.update()
         self.table_model.update()
         self.tree_model.update()
+
+    def add_layers(self, layers):
+        for layer in layers:
+            src = self.sources.add_layer(layer)
+            self.table_model.add_source(src)
+            self.tree_model.add_source(src)
+
+    def remove_layers(self, layerids):
+        for layerid in layerids:
+            src = self.sources.by_layerid(layerid)
+            self.table_model.remove_source(src)
+            self.tree_model.remove_source(src)
+            self.sources.remove_layer(QgsProject.instance().mapLayer(layerid))
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

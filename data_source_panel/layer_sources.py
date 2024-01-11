@@ -59,41 +59,59 @@ class LayerSources:
     def clear(self):
         self.sources = []
 
-    def update(self,sources=None):
+    def update(self, sources=None):
         if sources:
             self.sources = sources
         else:
-            self.get_sources_from_maplayers(QgsProject.instance().mapLayers())
+            self.get_sources_from_layers()
+
+    def add_layer(self, layer):
+        src = self.get_source_from_layer(layer)
+        self.add_source(src)
+        return src
+
+    def remove_layer(self, layer):
+        src = self.by_layerid(layer.id())
+        self.sources.remove(src)
+        return src
 
     def add_source(self, source: LayerSource):
         self.sources.append(source)
 
-    def get_sources_from_maplayers(self, layers: dict):
+    def get_sources_from_layers(self, layers: dict = None):
+        if not layers:
+            layers = QgsProject.instance().mapLayers()
         self.clear()
         for layerid, layer in layers.items():
-            provider = layer.dataProvider().name()
-            decoded = QgsProviderRegistry.instance().decodeUri(provider, layer.publicSource())
-            if provider == 'postgres':
-                db = decoded['dbname']
-                schema = decoded['schema']
-                table = decoded['table']
-                location = StorageLocation(
-                    ('DB ' + db, 'Schema ' + schema, table),
-                    f'{db}: "{schema}"."{table}"')
-            elif provider == 'memory':
-                location = StorageLocation()
-            elif 'path' in decoded:
-                path = decoded['path']
-                location = StorageLocation(Path(path).parts, path)
-            elif 'url' in decoded:
-                location = StorageLocation(decoded['url'])
-            else:
-                location = StorageLocation(None, '(unknown)')
-            icon = QgsIconUtils.iconForLayer(
-                QgsProject.instance().mapLayer(layerid))
-            self.add_source(LayerSource(
-                layerid=layerid, name=layer.name(),
-                provider=provider, location=location, icon=icon))
+            src = self.get_source_from_layer(layer, layerid)
+            self.add_source(src)
+
+    def get_source_from_layer(self, layer, layerid: str = None):
+        if not layerid:
+            layerid = layer.id()
+        provider = layer.dataProvider().name()
+        decoded = QgsProviderRegistry.instance().decodeUri(provider, layer.publicSource())
+        if provider == 'postgres':
+            db = decoded['dbname']
+            schema = decoded['schema']
+            table = decoded['table']
+            location = StorageLocation(
+                ('DB ' + db, 'Schema ' + schema, table),
+                f'{db}: "{schema}"."{table}"')
+        elif provider == 'memory':
+            location = StorageLocation()
+        elif 'path' in decoded:
+            path = decoded['path']
+            location = StorageLocation(Path(path).parts, path)
+        elif 'url' in decoded:
+            location = StorageLocation(decoded['url'])
+        else:
+            location = StorageLocation(None, '(unknown)')
+        icon = QgsIconUtils.iconForLayer(
+            QgsProject.instance().mapLayer(layerid))
+        return LayerSource(
+            layerid=layerid, name=layer.name(),
+            provider=provider, location=location, icon=icon)
 
     def num_layers(self) -> int:
         return len(self.sources)
@@ -114,7 +132,8 @@ class LayerSources:
             return self.sources[index]
 
     def by_layerid(self, layerid: str):
-        pass
+        layerid_sources = [s for s in self.sources if s.layerid == layerid]
+        return layerid_sources[0]  # there should be only one source
 
     def by_provider(self, provider: str):
         provider_sources = [s for s in self.sources if s.provider == provider]
