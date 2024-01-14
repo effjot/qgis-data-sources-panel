@@ -367,19 +367,32 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Toolbar
         self.act_tableview = QAction(
-            QgsApplication.getThemeIcon("/mActionOpenTable.svg"),
+            QgsApplication.getThemeIcon('/mActionOpenTable.svg'),
             '&Table View', self)
         self.act_treeview = QAction(
-            QgsApplication.getThemeIcon("/mIconTreeView.svg"),
+            QgsApplication.getThemeIcon('/mIconTreeView.svg'),
             'T&ree View', self)
+        self.act_expandall = QAction(
+            QgsApplication.getThemeIcon('mActionExpandTree.svg'),
+            '&Expand All', self)
+        self.act_collapseall = QAction(
+            QgsApplication.getThemeIcon('mActionCollapseTree.svg'),
+            '&Collapse All', self)
         self.act_tableview.setCheckable(True)
         self.act_treeview.setCheckable(True)
         self.act_tableview.setChecked(True)
+        self.act_expandall.setEnabled(False)
+        self.act_collapseall.setEnabled(False)
         self.act_tableview.triggered.connect(self.show_table)
         self.act_treeview.triggered.connect(self.show_tree)
+        self.act_expandall.triggered.connect(self.v_sources_tree.expandAll)
+        self.act_collapseall.triggered.connect(self.v_sources_tree.collapseAll)
         self.toolbar.addAction(self.act_tableview)
         self.toolbar.addAction(self.act_treeview)
+        self.toolbar.addAction(self.act_expandall)
+        self.toolbar.addAction(self.act_collapseall)
 
+        # Data sources display
         self.sources = LayerSources()
         self.table_model = SourcesTableModel(self.sources)
         self.proxy_model = QtCore.QSortFilterProxyModel()
@@ -399,11 +412,15 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def show_table(self):
         self.act_tableview.setChecked(True)
         self.act_treeview.setChecked(False)
+        self.act_expandall.setEnabled(False)
+        self.act_collapseall.setEnabled(False)
         self.stk_sourcesview.setCurrentIndex(0)
 
     def show_tree(self):
         self.act_tableview.setChecked(False)
         self.act_treeview.setChecked(True)
+        self.act_expandall.setEnabled(True)
+        self.act_collapseall.setEnabled(True)
         self.stk_sourcesview.setCurrentIndex(1)
 
     def update_models(self):
