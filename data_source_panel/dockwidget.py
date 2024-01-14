@@ -101,6 +101,7 @@ class TreeItem():
         self.children = []
         self._data = data
         self._icon = None
+        self.layerid = None
         if data_type == 'provider':
             self._icon = QgsProviderRegistry.instance().providerMetadata(
                 data).icon()
@@ -110,6 +111,7 @@ class TreeItem():
         elif data_type == 'layer':
             self._icon = data.icon
             self._data = data.name
+            self.layerid = data.layerid
         self.data_type = data_type
 
     def append_child(self, item):
@@ -159,6 +161,9 @@ class TreeItem():
     def data(self, column=None):  # at the moment no columns used
         return self._data
 
+    def set_data(self, data):
+        self._data = data
+
     def parent(self):
         return self.parent_item
 
@@ -190,6 +195,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             return item.data()  # at the moment no columns used
         if role == Qt.DecorationRole:
             return item.icon()
+        if role == Qt.UserRole:
+            return item.layerid
         return None
 
     def flags(self, index):
@@ -327,11 +334,17 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         loc_item.remove_child(src_item)
         self.layoutChanged.emit()
 
+    def rename_layer(self, src):
+        matching_indexes = self.match(self.index(0, 0, QtCore.QModelIndex()), Qt.UserRole,
+                                      src.layerid, 1, Qt.MatchRecursive)
+        if matching_indexes:
+            index = matching_indexes[0]
+            index.internalPointer().set_data(src.name)
+            self.dataChanged.emit(index, index, [Qt.DisplayRole])
+
     def update(self):
-        # QgsMessageLog.logMessage(f'update() before: {self._data.num_layers()=}', 'DSP', Qgis.Info)
         self.beginResetModel()
         self.setup_model_tree(self._data)
-        # QgsMessageLog.logMessage(f'  after: {self._data.num_layers()=}', 'DSP', Qgis.Info)
         self.endResetModel()
 
 
@@ -417,6 +430,7 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         layer = node.layer()
         src = self.sources.rename_layer(layer)
         self.table_model.rename_layer(src)
+        self.tree_model.rename_layer(src)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
