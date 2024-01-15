@@ -5,10 +5,17 @@ from pathlib import Path
 from typing import Union
 
 from qgis.core import (
+    Qgis,
+    QgsField,
+    QgsGeometry,
     QgsIconUtils,
+    QgsMessageLog,
     QgsProject,
-    QgsProviderRegistry
+    QgsProviderRegistry,
+    QgsVectorLayer,
+    QgsVectorLayerUtils
 )
+from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QIcon
 
 
@@ -150,6 +157,27 @@ class LayerSources:
     def by_location(self, location: str):
         location_sources = [s for s in self.sources if s.location == location]
         return LayerSources(location_sources)
+
+    def as_memory_layer(self, name: str = 'Data Sources'):
+        mem_layer = QgsVectorLayer('NoGeometry', name, 'memory')
+        prov = mem_layer.dataProvider()
+        prov.addAttributes([
+            QgsField('layerid', QVariant.String),
+            QgsField('Name', QVariant.String),
+            QgsField('Provider', QVariant.String),
+            QgsField('Storage Location', QVariant.String)
+        ])
+        mem_layer.updateFields()
+        features = [
+            QgsVectorLayerUtils.createFeature(
+                mem_layer, QgsGeometry(), {
+                    0: src.layerid, 1: src.name, 2: nice_provider_name(src.provider),
+                    3: str(src.location)
+                })
+            for src in self.sources
+        ]
+        prov.addFeatures(features)
+        return mem_layer
 
 
 def nice_provider_name(provider):

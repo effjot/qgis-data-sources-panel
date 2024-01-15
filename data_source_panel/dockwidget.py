@@ -28,18 +28,23 @@ from pathlib import Path
 from qgis.core import (
     Qgis,
     QgsApplication,
-    QgsIconUtils,
     QgsLayerTree,
     QgsMessageLog,
     QgsProject,
-    QgsProviderRegistry
+    QgsProviderRegistry,
+    QgsSettings,
+    QgsVectorFileWriter
 )
 from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, Qt
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QFileDialog
+)
 
 from .layer_sources import LayerSources, nice_provider_name, locations_common_part
 
+MSG_TAG = 'Data Sources Panel'
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'dockwidget.ui'))
@@ -351,9 +356,10 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
 class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, iface, parent=None):
         """Constructor."""
         super().__init__(parent)
+        self.iface = iface
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
@@ -378,6 +384,9 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.act_collapseall = QAction(
             QgsApplication.getThemeIcon('mActionCollapseTree.svg'),
             '&Collapse All', self)
+        self.act_export = QAction(
+            QgsApplication.getThemeIcon('mActionFileSave.svg'),
+            'E&xport', self)
         self.act_tableview.setCheckable(True)
         self.act_treeview.setCheckable(True)
         self.act_tableview.setChecked(True)
@@ -387,10 +396,12 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.act_treeview.triggered.connect(self.show_tree)
         self.act_expandall.triggered.connect(self.v_sources_tree.expandAll)
         self.act_collapseall.triggered.connect(self.v_sources_tree.collapseAll)
+        self.act_export.triggered.connect(self.export_xlsx)
         self.toolbar.addAction(self.act_tableview)
         self.toolbar.addAction(self.act_treeview)
         self.toolbar.addAction(self.act_expandall)
         self.toolbar.addAction(self.act_collapseall)
+        self.toolbar.addAction(self.act_export)
 
         # Data sources display
         self.sources = LayerSources()
@@ -448,6 +459,38 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         src = self.sources.rename_layer(layer)
         self.table_model.rename_layer(src)
         self.tree_model.rename_layer(src)
+
+    def export_xlsx(self):
+        mem_layer = self.sources.as_memory_layer()
+        # QgsProject.instance().addMapLayer(mem_layer)  # for testing
+        file_path = (Path(QgsSettings().value("UI/lastFileNameWidgetDir"))
+                     / f'{mem_layer.name()}.xlsx')
+        output_file, _ = QFileDialog.getSaveFileName(
+            self, 'Export Data Sources Table as Excel workbook',
+            str(file_path), 'Excel workbook (*.xlsx)'
+        )
+        if not output_file:
+            self.iface.messageBar().pushMessage(
+                MSG_TAG, 'Export cancelled', level=Qgis.Info
+            )
+            return
+        save_options = QgsVectorFileWriter.SaveVectorOptions()
+        save_options.fileEncoding = "UTF-8"
+        save_options.driverName = 'XLSX'
+        error, message, _, _ = QgsVectorFileWriter.writeAsVectorFormatV3(
+            mem_layer, output_file,
+            QgsProject.instance().transformContext(),
+            save_options)
+        if error == QgsVectorFileWriter.NoError:
+            self.iface.messageBar().pushMessage(
+                MSG_TAG, f'Data sources table successfully exported to {output_file}',
+                level=Qgis.Success
+            )
+        else:
+            self.iface.messageBar().pushMessage(
+                MSG_TAG, f'Export to {output_file} failed: {error} {message}',
+                level=Qgis.Critical
+            )
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
