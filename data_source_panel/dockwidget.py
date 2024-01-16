@@ -73,10 +73,14 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self._header[index]
 
-    def add_source(self, src):
+    def add_source_begin(self):
+        self.layoutChanged.emit()
+    def add_source_end(self, src):
         self.layoutChanged.emit()
 
-    def remove_source(self, src):
+    def remove_source_begin(self, src):
+        self.layoutAboutToBeChanged.emit()
+    def remove_source_end(self):
         self.layoutChanged.emit()
 
     def rename_layer(self, src):
@@ -270,8 +274,10 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
                     src_item = TreeItem(src, 'layer', loc_item)
                     loc_item.append_child(src_item)
 
-    def add_source(self, src):
+    def add_source_begin(self):
         self.layoutAboutToBeChanged.emit()
+
+    def add_source_end(self, src):
         prov = src.provider
         prov_item = self.root_item.child_by_data(nice_provider_name(prov))
         if not prov_item:
@@ -303,7 +309,7 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         loc_item.append_child(src_item)
         self.layoutChanged.emit()
 
-    def remove_source(self, src):
+    def remove_source_begin(self, src):
         self.layoutAboutToBeChanged.emit()
         prov = src.provider
         prov_item = self.root_item.child_by_data(nice_provider_name(prov))
@@ -328,6 +334,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             loc_item = prov_item.child_by_data(str(loc))
         src_item = loc_item.child_by_data(src.name)
         loc_item.remove_child(src_item)
+
+    def remove_source_end(self):
         self.layoutChanged.emit()
 
     def rename_layer(self, src):
@@ -433,16 +441,20 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def add_layers(self, layers):
         for layer in layers:
+            self.table_model.add_source_begin()
+            self.tree_model.add_source_begin()
             src = self.sources.add_layer(layer)
-            self.table_model.add_source(src)
-            self.tree_model.add_source(src)
+            self.table_model.add_source_end(src)
+            self.tree_model.add_source_end(src)
 
     def remove_layers(self, layerids):
         for layerid in layerids:
             src = self.sources.by_layerid(layerid)
-            self.table_model.remove_source(src)
-            self.tree_model.remove_source(src)
+            self.table_model.remove_source_begin(src)
+            self.tree_model.remove_source_begin(src)
             self.sources.remove_layer(QgsProject.instance().mapLayer(layerid))
+            self.table_model.remove_source_end()
+            self.tree_model.remove_source_end()
 
     def rename_layer(self, node, name):
         if not QgsLayerTree.isLayer(node):
