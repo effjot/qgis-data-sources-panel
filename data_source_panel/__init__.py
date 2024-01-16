@@ -24,6 +24,9 @@
 """
 
 
+MSG_TAG = 'Data Sources Panel'
+
+
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load DataSourcePanel class from file DataSourcePanel.

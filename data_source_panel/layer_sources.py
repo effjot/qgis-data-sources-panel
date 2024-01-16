@@ -18,6 +18,8 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QIcon
 
+from . import MSG_TAG
+
 
 @dataclass(frozen=True)  # frozen for hashable class, necessary for set()
 class StorageLocation:

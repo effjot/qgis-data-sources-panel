@@ -35,22 +35,16 @@ from qgis.core import (
     QgsSettings,
     QgsVectorFileWriter
 )
-from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal, Qt
-from qgis.PyQt.QtWidgets import (
-    QAction,
-    QFileDialog
-)
+from qgis.PyQt import QtCore, QtWidgets, uic
+from qgis.PyQt.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
-from .layer_sources import LayerSources, nice_provider_name, locations_common_part
-
-MSG_TAG = 'Data Sources Panel'
+from . import MSG_TAG
+from .layer_sources import LayerSources, nice_provider_name
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'dockwidget.ui'))
 
-
-# FIXME: Models don’t handle renames
 
 class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
@@ -90,11 +84,8 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [Qt.DisplayRole])
 
     def update(self):
-        # QgsMessageLog.logMessage(f'update() before: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self.get_icons()
-        # QgsMessageLog.logMessage(f'  after: {self.rowCount(0)=}', 'DSP', Qgis.Info)
         self.layoutChanged.emit()
-        # QgsMessageLog.logMessage('  signal emitted', 'DSP', Qgis.Info)
 
 
 # FIXME: Tree model is too complicated. Try to generate return values on the fly from LayerSources
@@ -286,8 +277,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         if not prov_item:
             prov_item = TreeItem(prov, 'provider', self.root_item)
             self.root_item.append_child(prov_item)
-        prov_sources = self._data.by_provider(prov)
-        locations = prov_sources.locations()
+        # prov_sources = self._data.by_provider(prov)
+        # locations = prov_sources.locations()
         # loc_common = locations_common_part(locations)  # FIXME: handle case with new common_part
         loc = src.location
         if loc.is_empty():
@@ -316,8 +307,8 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         self.layoutAboutToBeChanged.emit()
         prov = src.provider
         prov_item = self.root_item.child_by_data(nice_provider_name(prov))
-        prov_sources = self._data.by_provider(prov)
-        locations = prov_sources.locations()
+        # prov_sources = self._data.by_provider(prov)
+        # locations = prov_sources.locations()
         # loc_common = locations_common_part(locations)
         loc = src.location
         if loc.is_empty():
@@ -360,6 +351,8 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Constructor."""
         super().__init__(parent)
         self.iface = iface
+        self.proj = QgsProject.instance()
+
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
@@ -415,10 +408,9 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.v_sources_tree.setHeaderHidden(True)
         self.v_sources_tree.setModel(self.tree_model)
 
-        self.proj = QgsProject.instance()
         self.proj.layersAdded.connect(self.add_layers)
         self.proj.layersWillBeRemoved.connect(self.remove_layers)
-        QgsProject.instance().layerTreeRoot().nameChanged.connect(self.rename_layer)
+        self.proj.layerTreeRoot().nameChanged.connect(self.rename_layer)
 
     def show_table(self):
         self.act_tableview.setChecked(True)
@@ -462,7 +454,7 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def export_xlsx(self):
         mem_layer = self.sources.as_memory_layer()
-        # QgsProject.instance().addMapLayer(mem_layer)  # for testing
+        # self.proj.addMapLayer(mem_layer)  # for testing
         file_path = (Path(QgsSettings().value("UI/lastFileNameWidgetDir"))
                      / f'{mem_layer.name()}.xlsx')
         output_file, _ = QFileDialog.getSaveFileName(
