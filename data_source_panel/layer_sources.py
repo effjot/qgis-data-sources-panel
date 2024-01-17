@@ -116,7 +116,12 @@ class LayerSources:
             location = StorageLocation()
         elif 'path' in decoded:
             path = decoded['path']
-            location = StorageLocation(Path(path).parts, path)
+            hierarchical = Path(path).parts
+            if 'layerName' in decoded and decoded['layerName']:
+                name = decoded['layerName']
+                path += ': ' + name
+                hierarchical += (name,)
+            location = StorageLocation(hierarchical, path)
         elif 'url' in decoded:
             location = StorageLocation(decoded['url'])
         else:
