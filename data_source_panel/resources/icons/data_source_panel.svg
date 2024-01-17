@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="24"
+   viewBox="0 0 24 24"
+   width="24"
+   version="1.1"
+   id="svg226"
+   sodipodi:docname="data_source_panel.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
+   inkscape:export-filename="/home/fj/src/qgis/qgis-data-source-panel/data_source_panel/resources/icons/data_source_panel.png"
+   inkscape:export-xdpi="256"
+   inkscape:export-ydpi="256">
+  <metadata
+     id="metadata232">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs230" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1132"
+     id="namedview228"
+     showgrid="false"
+     inkscape:zoom="19.949281"
+     inkscape:cx="12.004038"
+     inkscape:cy="12.045307"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g224"
+     inkscape:document-rotation="0" />
+  <g
+     fill="none"
+     fill-rule="evenodd"
+     id="g224">
+    <g
+       transform="matrix(0.97968799,0.21974286,-0.21926605,0.99808243,2.374032,-1.566994)"
+       id="g210">
+      <g
+         transform="rotate(-34,9.6679996,12.29)"
+         id="g198">
+        <path
+           d="M 2.705,5.327 H 16.63 V 19.252 H 2.705 Z"
+           fill="#d06935"
+           height="100%"
+           width="100%"
+           id="path194" />
+        <path
+           d="M 3.0803977,5.701775 V 18.876709 H 16.255332 V 5.701775 Z"
+           stroke="#864422"
+           stroke-width="0.75"
+           id="path196" />
+      </g>
+      <g
+         transform="rotate(-19,11.029999,8.8959992)"
+         id="g204">
+        <path
+           d="M 4.067,1.933 H 17.992 V 15.858 H 4.067 Z"
+           fill="#ecc61d"
+           height="100%"
+           width="100%"
+           id="path200" />
+        <path
+           d="M 4.4422133,2.3080574 V 15.482992 H 17.617148 V 2.3080574 Z"
+           stroke="#907b1b"
+           stroke-width="0.75"
+           id="path202" />
+      </g>
+      <path
+         d="M 8.073,0.046 H 21.998 V 13.971 H 8.073 Z"
+         fill="#6d97c4"
+         height="100%"
+         width="100%"
+         id="path206" />
+      <path
+         d="M 8.448,0.421 H 21.623 V 13.596 H 8.448 Z"
+         stroke="#3d5064"
+         stroke-width="0.75"
+         id="path208" />
+    </g>
+    <g
+       stroke="#6e97c4"
+       transform="matrix(0.65997843,0,0,0.79808708,9.2926569,-0.08550753)"
+       id="g108">
+      <path
+         d="m 2.5,15.5 h 19 v 14 h -19 z"
+         fill="#e6e6e6"
+         id="path82"
+         style="fill:#e6e6e6;stroke:#333333" />
+      <path
+         d="m 2.5,10.5 h 19 v 5 h -19 z"
+         fill="#bad9ec"
+         id="path84"
+         style="fill:#b3b3b3;stroke:#333333" />
+      <g
+         fill="none"
+         id="g106">
+        <path
+           d="M 5,13 H 9"
+           stroke-width="2"
+           id="path86"
+           style="stroke:#666666" />
+        <path
+           d="m 11,13 h 7.999999"
+           stroke-width="2"
+           id="path88"
+           style="stroke:#666666" />
+        <path
+           d="M 5,17.5 H 9"
+           id="path90"
+           style="stroke:#808080;stroke-width:0.999474;stroke-miterlimit:4;stroke-dasharray:none" />
+        <path
+           d="m 11,17.5 h 7.999999"
+           id="path92"
+           style="stroke:#808080" />
+        <path
+           d="M 5,20.5 H 9"
+           id="path94"
+           style="stroke:#808080" />
+        <path
+           d="m 11,20.5 h 7.999999"
+           id="path96"
+           style="stroke:#808080" />
+        <path
+           d="M 5,23.5 H 9"
+           id="path98"
+           style="stroke:#808080" />
+        <path
+           d="m 11,23.5 h 7.999999"
+           id="path100"
+           style="stroke:#808080" />
+        <path
+           d="M 5,26.5 H 9"
+           id="path102"
+           style="stroke:#808080" />
+        <path
+           d="m 11,26.5 h 7.999999"
+           id="path104"
+           style="stroke:#808080" />
+      </g>
+    </g>
+  </g>
+</svg>

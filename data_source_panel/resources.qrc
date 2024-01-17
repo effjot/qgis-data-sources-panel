@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/data_source_panel" >
-        <file>icon.png</file>
+    <qresource >
+        <file alias="icon.svg">/resources/icons/data_source_panel.svg</file>
     </qresource>
 </RCC>

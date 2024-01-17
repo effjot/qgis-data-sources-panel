@@ -168,7 +168,7 @@ class DataSourcePanel:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/data_source_panel/icon.png'
+        icon_path = ':/icon.svg'
         self.add_action(
             icon_path,
             text=self.tr(u'Data sources panel'),
