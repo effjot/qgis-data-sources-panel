@@ -20,6 +20,9 @@ from qgis.PyQt.QtGui import QIcon
 
 from . import MSG_TAG
 
+# TODO: make this a config option
+POSTGRESQL_COMBINE_PROVIDERS = True  # Combine postres and postgresraster as a single provider
+
 
 @dataclass(frozen=True)  # frozen for hashable class, necessary for set()
 class StorageLocation:
@@ -106,6 +109,8 @@ class LayerSources:
         provider = layer.dataProvider().name()
         decoded = QgsProviderRegistry.instance().decodeUri(provider, layer.publicSource())
         if provider in ('postgres', 'postgresraster'):
+            if POSTGRESQL_COMBINE_PROVIDERS:
+                provider = 'postgres'
             db = decoded['dbname']
             schema = decoded['schema']
             table = decoded['table']
