@@ -105,7 +105,7 @@ class LayerSources:
             layerid = layer.id()
         provider = layer.dataProvider().name()
         decoded = QgsProviderRegistry.instance().decodeUri(provider, layer.publicSource())
-        if provider == 'postgres':
+        if provider in ('postgres', 'postgresraster'):
             db = decoded['dbname']
             schema = decoded['schema']
             table = decoded['table']
@@ -199,6 +199,8 @@ def nice_provider_name(provider):
         'wms': 'WMS/WMTS',
         'WFS': 'WFS',
         'postgres': 'PostgreSQL',
+        'postgresraster': 'PostgreSQL Raster',
+        'spatialite': 'SpatiaLite',
         'memory': 'Memory / Scratch Layer'
     }
     return names.get(provider, provider)
