@@ -23,6 +23,7 @@
 """
 
 import os
+from functools import partial
 from pathlib import Path
 
 from qgis.core import (
@@ -86,6 +87,10 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def rename_layer(self, src):
         row = self._data.index(src)
         self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [Qt.DisplayRole])
+
+    def change_layer_source(self, src):
+        row = self._data.index(src)
+        self.dataChanged.emit(self.index(row, 1), self.index(row, 2), [Qt.DisplayRole])
 
     def update(self):
         self.get_icons()
@@ -416,9 +421,12 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.v_sources_tree.setHeaderHidden(True)
         self.v_sources_tree.setModel(self.tree_model)
 
+        # Listen to layer changes
         self.proj.layersAdded.connect(self.add_layers)
         self.proj.layersWillBeRemoved.connect(self.remove_layers)
         self.proj.layerTreeRoot().nameChanged.connect(self.rename_layer)
+        for layer in self.proj.mapLayers().values():
+            layer.dataSourceChanged.connect(partial(self.change_layer_source, layer))
 
     def show_table(self):
         self.act_tableview.setChecked(True)
@@ -446,6 +454,7 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             src = self.sources.add_layer(layer)
             self.table_model.add_source_end(src)
             self.tree_model.add_source_end(src)
+            layer.dataSourceChanged.connect(partial(self.change_layer_source, layer))
 
     def remove_layers(self, layerids):
         for layerid in layerids:
@@ -463,6 +472,10 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         src = self.sources.rename_layer(layer)
         self.table_model.rename_layer(src)
         self.tree_model.rename_layer(src)
+
+    def change_layer_source(self, layer):
+        new = self.sources.change_layer_source(layer)
+        self.table_model.change_layer_source(new)
 
     def export_xlsx(self):
         mem_layer = self.sources.as_memory_layer()

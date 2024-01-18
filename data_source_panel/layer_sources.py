@@ -88,9 +88,18 @@ class LayerSources:
         return src
 
     def rename_layer(self, layer):
+        """Get new name from layer and store it in sources list"""
         src = self.by_layerid(layer.id())
         src.name = layer.name()
         return src
+
+    def change_layer_source(self, layer):
+        """Get new data source from layer and store it in sources list"""
+        src = self.by_layerid(layer.id())
+        index = self.index(src)
+        new = self.get_source_from_layer(layer)
+        self.sources[index] = new
+        return new
 
     def add_source(self, source: LayerSource):
         self.sources.append(source)
@@ -151,16 +160,18 @@ class LayerSources:
         locs = [s.location for s in self.sources]
         return list(set(locs))
 
-    def index(self, src):
+    def index(self, src: LayerSource) -> int:
+        """Get index of src in sources"""
         return self.sources.index(src)
 
     def by_index(self, index: int) -> LayerSource:
+        """Get source by index"""
         if index >= 0 and index < self.num_layers():
             return self.sources[index]
 
     def by_layerid(self, layerid: str):
         layerid_sources = [s for s in self.sources if s.layerid == layerid]
-        return layerid_sources[0]  # there should be only one source
+        return layerid_sources[0]  # there should be only one source as ids are unique
 
     def by_provider(self, provider: str):
         provider_sources = [s for s in self.sources if s.provider == provider]
