@@ -351,6 +351,10 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             index.internalPointer().set_data(src.name)
             self.dataChanged.emit(index, index, [Qt.DisplayRole])
 
+    def change_layer_source(self, old, new):
+        self.remove_source_begin(old)
+        self.add_source_end(new)
+
     def update(self):
         self.beginResetModel()
         self.setup_model_tree(self._data)
@@ -474,8 +478,10 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.tree_model.rename_layer(src)
 
     def change_layer_source(self, layer):
+        old = self.sources.by_layerid(layer.id())
         new = self.sources.change_layer_source(layer)
         self.table_model.change_layer_source(new)
+        self.tree_model.change_layer_source(old, new)
 
     def export_xlsx(self):
         mem_layer = self.sources.as_memory_layer()
