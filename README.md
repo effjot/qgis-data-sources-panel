@@ -1,17 +1,4 @@
-.. DataSourcePanel documentation master file, created by
-   sphinx-quickstart on Sun Feb 12 17:11:03 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Documentation for Data Source Panel
-===================================
-
-.. toctree::
-   :maxdepth: 2
-
-
-Overview
---------
+# QGIS Data Sources Panel plugin
 
 This QGIS plugin shows layer data sources in a panel (as table or as
 tree grouped by data provider) and offers exporting the information to
@@ -22,8 +9,7 @@ provider* and its “*storage location*”, i.e. directory+file on the
 harddrive or database+schema+table for a PostGIS layer.
 
 
-Usage
------
+## Usage
 
 The panel can be opened from the Plugins menu → Data Sources Panel.
 

@@ -24,8 +24,8 @@
 
 import os.path
 
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QTranslator
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QTranslator, QUrl
+from qgis.PyQt.QtGui import QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QAction
 
 # Import the code for the DockWidget
@@ -168,6 +168,10 @@ class DataSourcesPanel:
             add_to_toolbar=False,
             callback=self.run,
             parent=self.iface.mainWindow())
+        self.act_help = QAction(
+            QIcon(icon_path), 'Data Sources Panel', self.iface.mainWindow())
+        self.act_help.triggered.connect(self.show_help)
+        self.iface.pluginHelpMenu().addAction(self.act_help)
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -190,6 +194,9 @@ class DataSourcesPanel:
             # self.iface.removeToolBarIcon(action)
         # remove the toolbar
         # del self.toolbar
+        if self.act_help:
+            self.iface.pluginHelpMenu().removeAction(self.act_help)
+            del self.act_help
 
     def run(self):
         """Run method that loads and starts the plugin"""
@@ -209,3 +216,10 @@ class DataSourcesPanel:
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
+
+    def show_help(self):
+        # qgis.utilsshowPluginHelp doesn’t work (fails silently, with and without arguments)
+        # showPluginHelp(packageName='data_sources_panel', filename='help/index')
+        plugin_path = os.path.dirname(__file__)
+        url = f'file:///{plugin_path}/help/index.html'
+        QDesktopServices.openUrl(QUrl(url))
