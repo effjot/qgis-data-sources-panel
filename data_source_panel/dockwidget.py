@@ -160,6 +160,14 @@ class TreeItem():
     def child_count(self):
         return len(self.children)
 
+    def has_children(self):
+        return self.child_count() > 0
+
+    def has_siblings(self):
+        if self.parent_item:
+            return self.parent_item.child_count() > 1
+        return None
+
     def column_count(self):  # at the moment no columns used
         return 1
 
@@ -180,6 +188,17 @@ class TreeItem():
 
     def icon(self):
         return self._icon
+
+    def find_base_for_pruning(self):
+        def find_item_with_siblings(item: TreeItem) -> TreeItem:
+            parent = item.parent()
+            if not parent or item.has_siblings():
+                return item
+            return find_item_with_siblings(parent)
+
+        if self.has_children():
+            return None
+        return find_item_with_siblings(self)
 
 
 class SourcesTreeModel(QtCore.QAbstractItemModel):
@@ -339,6 +358,13 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             loc_item = prov_item.child_by_data(str(loc))
         src_item = loc_item.child_by_data(src.name)
         loc_item.remove_child(src_item)
+        base_for_pruning = loc_item.find_base_for_pruning()
+        if base_for_pruning:
+            QgsMessageLog.logMessage(f'{base_for_pruning.data()=}', MSG_TAG, Qgis.Info)
+            base_for_pruning.remove_children()
+            parent = base_for_pruning.parent()
+            if parent:  # if no parent, we are at the root_item, which must not be removed
+                parent.remove_child(base_for_pruning)
 
     def remove_source_end(self):
         self.layoutChanged.emit()
