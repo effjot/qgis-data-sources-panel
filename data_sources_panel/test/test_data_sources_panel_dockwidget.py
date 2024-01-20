@@ -16,19 +16,19 @@ import unittest
 
 from qgis.PyQt.QtGui import QDockWidget
 
-from data_source_panel_dockwidget import DataSourcePanelDockWidget
+from data_sources_panel_dockwidget import DataSourcesPanelDockWidget
 
 from utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
 
 
-class DataSourcePanelDockWidgetTest(unittest.TestCase):
+class DataSourcesPanelDockWidgetTest(unittest.TestCase):
     """Test dockwidget works."""
 
     def setUp(self):
         """Runs before each test."""
-        self.dockwidget = DataSourcePanelDockWidget(None)
+        self.dockwidget = DataSourcesPanelDockWidget(None)
 
     def tearDown(self):
         """Runs after each test."""
@@ -39,7 +39,7 @@ class DataSourcePanelDockWidgetTest(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(DataSourcePanelDialogTest)
+    suite = unittest.makeSuite(DataSourcesPanelDialogTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
 

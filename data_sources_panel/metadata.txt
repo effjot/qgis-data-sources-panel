@@ -3,14 +3,14 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=Data Source Panel
+name=Data Sources Panel
 qgisMinimumVersion=3.22
 description=Panel with overview of layer data sources
 version=0.1
 author=Florian Jenn
 email=devel@effjot.net
 
-about=Show layer data sources in a panel, with optional grouping by data provider and export to CSV/Excel files.
+about=Show layer data sources in a panel, as table or as tree by data provider and export to CSV/Excel files.
 
 tracker=https://github.com/effjot
 repository=https://github.com/effjot
