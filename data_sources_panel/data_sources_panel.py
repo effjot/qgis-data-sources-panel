@@ -21,6 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os.path
 
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QTranslator
@@ -37,7 +38,7 @@ class DataSourcesPanel:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
+        """Constructor for plugin.
 
         :param iface: An interface instance that will be passed to this class
             which provides the hook by which you can manipulate the QGIS
@@ -64,9 +65,8 @@ class DataSourcesPanel:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Data Sources Panel')
-        # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'DataSourcesPanel')
-        self.toolbar.setObjectName(u'DataSourcesPanel')
+        # self.toolbar = self.iface.addToolBar(u'DataSourcesPanel')
+        # self.toolbar.setObjectName(u'DataSourcesPanel')
 
         self.pluginIsActive = False
         self.dockwidget = None
@@ -148,7 +148,8 @@ class DataSourcesPanel:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            self.toolbar.addAction(action)
+            # self.toolbar.addAction(action)
+            pass
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -164,6 +165,7 @@ class DataSourcesPanel:
         self.add_action(
             icon_path,
             text=self.tr(u'Data sources panel'),
+            add_to_toolbar=False,
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -183,15 +185,14 @@ class DataSourcesPanel:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Data Source Panel'),
+                self.tr('&Data Source Panel'),
                 action)
-            self.iface.removeToolBarIcon(action)
+            # self.iface.removeToolBarIcon(action)
         # remove the toolbar
-        del self.toolbar
+        # del self.toolbar
 
     def run(self):
         """Run method that loads and starts the plugin"""
-
         if not self.pluginIsActive:
             self.pluginIsActive = True
             # dockwidget may not exist if:
