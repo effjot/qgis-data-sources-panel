@@ -360,7 +360,6 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         loc_item.remove_child(src_item)
         base_for_pruning = loc_item.find_base_for_pruning()
         if base_for_pruning:
-            QgsMessageLog.logMessage(f'{base_for_pruning.data()=}', MSG_TAG, Qgis.Info)
             base_for_pruning.remove_children()
             parent = base_for_pruning.parent()
             if parent:  # if no parent, we are at the root_item, which must not be removed
@@ -455,8 +454,10 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.proj.layersAdded.connect(self.add_layers)
         self.proj.layersWillBeRemoved.connect(self.remove_layers)
         self.proj.layerTreeRoot().nameChanged.connect(self.rename_layer)
-        for layer in self.proj.mapLayers().values():
-            layer.dataSourceChanged.connect(partial(self.change_layer_source, layer))
+        for layerid, layer in self.proj.mapLayers().items():
+            # using layer in partial() doesn’t seem to work properly; change_layer_source
+            # is not always connected/called; maybe some issue with variable scope in loop
+            layer.dataSourceChanged.connect(partial(self.change_layer_source, layerid))
 
     def show_table(self):
         self.act_tableview.setChecked(True)
@@ -484,7 +485,7 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             src = self.sources.add_layer(layer)
             self.table_model.add_source_end(src)
             self.tree_model.add_source_end(src)
-            layer.dataSourceChanged.connect(partial(self.change_layer_source, layer))
+            layer.dataSourceChanged.connect(partial(self.change_layer_source, layer.id()))
 
     def remove_layers(self, layerids):
         for layerid in layerids:
@@ -503,8 +504,9 @@ class DataSourceDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.table_model.rename_layer(src)
         self.tree_model.rename_layer(src)
 
-    def change_layer_source(self, layer):
-        old = self.sources.by_layerid(layer.id())
+    def change_layer_source(self, layerid):
+        layer = QgsProject.instance().mapLayers()[layerid]
+        old = self.sources.by_layerid(layerid)
         new = self.sources.change_layer_source(layer)
         self.table_model.change_layer_source(new)
         self.tree_model.change_layer_source(old, new)
