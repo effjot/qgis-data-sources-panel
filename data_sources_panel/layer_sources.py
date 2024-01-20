@@ -1,5 +1,8 @@
 """Retrieve and process layer data sources"""
 
+# Copyright (C) 2023 by Florian Jenn
+
+
 from dataclasses import astuple, dataclass, fields
 from pathlib import Path
 from typing import Union
