@@ -36,7 +36,7 @@ from qgis.core import (
 )
 from qgis.PyQt import QtCore, QtWidgets, uic
 from qgis.PyQt.QtCore import Qt, pyqtSignal
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMenu, QToolButton
 
 from . import MSG_TAG
 from .layer_sources import LayerSources, nice_provider_name
@@ -417,9 +417,20 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.act_collapseall = QAction(
             QgsApplication.getThemeIcon('mActionCollapseTree.svg'),
             '&Collapse All', self)
-        self.act_export = QAction(
-            QgsApplication.getThemeIcon('mActionFileSave.svg'),
-            'E&xport', self)
+        self.btn_export = QToolButton()
+        self.btn_export.setIcon(
+            QgsApplication.getThemeIcon('mActionFileSave.svg'))
+        self.btn_export.setToolTip('Export')
+        self.btn_export.setAutoRaise(True)
+        self.btn_export.setPopupMode(QToolButton.InstantPopup)
+        self.act_export_xlsx = QAction(
+            'Export as &Excel file', self)
+        self.act_export_csv = QAction(
+            'Export as &CSV file', self)
+        self.menu_export = QMenu()
+        self.menu_export.addAction(self.act_export_xlsx)
+        self.menu_export.addAction(self.act_export_csv)
+        self.btn_export.setMenu(self.menu_export)
         self.act_tableview.setCheckable(True)
         self.act_treeview.setCheckable(True)
         self.act_tableview.setChecked(True)
@@ -429,12 +440,13 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.act_treeview.triggered.connect(self.show_tree)
         self.act_expandall.triggered.connect(self.v_sources_tree.expandAll)
         self.act_collapseall.triggered.connect(self.v_sources_tree.collapseAll)
-        self.act_export.triggered.connect(self.export_xlsx)
+        self.act_export_xlsx.triggered.connect(self.export_xlsx)
+        self.act_export_csv.triggered.connect(self.export_csv)
         self.toolbar.addAction(self.act_tableview)
         self.toolbar.addAction(self.act_treeview)
         self.toolbar.addAction(self.act_expandall)
         self.toolbar.addAction(self.act_collapseall)
-        self.toolbar.addAction(self.act_export)
+        self.toolbar.addWidget(self.btn_export)
 
         # Data sources display
         self.sources = LayerSources()
@@ -509,14 +521,26 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.table_model.change_layer_source(new)
         self.tree_model.change_layer_source(old, new)
 
+    def export_csv(self):
+        self.export('csv')
+
     def export_xlsx(self):
+        self.export('xlsx')
+
+    def export(self, file_type: str):
+        if file_type not in ('csv', 'xlsx'):
+            raise ValueError
+        file_filters = {
+            'csv': 'Comma Separated Values (*.csv)',
+            'xlsx': 'Excel workbook (*.xlsx)'
+        }
         mem_layer = self.sources.as_memory_layer()
         # self.proj.addMapLayer(mem_layer)  # for testing
         file_path = (Path(QgsSettings().value("UI/lastFileNameWidgetDir"))
-                     / f'{mem_layer.name()}.xlsx')
+                     / f'{mem_layer.name()}.{file_type}')
         output_file, _ = QFileDialog.getSaveFileName(
-            self, 'Export Data Sources Table as Excel workbook',
-            str(file_path), 'Excel workbook (*.xlsx)'
+            self, 'Export Data Sources Table',
+            str(file_path), file_filters[file_type]
         )
         if not output_file:
             self.iface.messageBar().pushMessage(
@@ -525,7 +549,7 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         save_options = QgsVectorFileWriter.SaveVectorOptions()
         save_options.fileEncoding = "UTF-8"
-        save_options.driverName = 'XLSX'
+        save_options.driverName = file_type.upper()
         error, message, _, _ = QgsVectorFileWriter.writeAsVectorFormatV3(
             mem_layer, output_file,
             QgsProject.instance().transformContext(),

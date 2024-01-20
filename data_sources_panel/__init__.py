@@ -23,7 +23,7 @@
 """
 
 
-MSG_TAG = 'Data Sources Panel'
+MSG_TAG = 'Data Sources Panel'  # tag for log messages and message bar
 
 
 # noinspection PyPep8Naming
