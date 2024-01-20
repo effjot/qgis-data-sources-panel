@@ -14,9 +14,9 @@
    id="svg226"
    sodipodi:docname="data_source_panel.svg"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
-   inkscape:export-filename="/home/fj/src/qgis/qgis-data-source-panel/data_source_panel/resources/icons/data_source_panel.png"
-   inkscape:export-xdpi="256"
-   inkscape:export-ydpi="256">
+   inkscape:export-filename="/home/fj/src/qgis/qgis-data-source-panel/data_sources_panel/resources/icons/data_source_panel.png"
+   inkscape:export-xdpi="512"
+   inkscape:export-ydpi="512">
   <metadata
      id="metadata232">
     <rdf:RDF>
@@ -44,9 +44,9 @@
      inkscape:window-height="1132"
      id="namedview228"
      showgrid="false"
-     inkscape:zoom="19.949281"
+     inkscape:zoom="28.212544"
      inkscape:cx="12.004038"
-     inkscape:cy="12.045307"
+     inkscape:cy="10.98195"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -102,64 +102,55 @@
          id="path208" />
     </g>
     <g
-       stroke="#6e97c4"
-       transform="matrix(0.65997843,0,0,0.79808708,9.2926569,-0.08550753)"
-       id="g108">
+       id="g315"
+       transform="matrix(0.76562889,0,0,0.76562889,5.9515613,-1.1084302)"
+       inkscape:export-xdpi="256"
+       inkscape:export-ydpi="256">
       <path
-         d="m 2.5,15.5 h 19 v 14 h -19 z"
+         d="M 6.3405649,11.25517 H 23.039698 v 21 H 6.3405649 Z"
+         fill="#ffffff"
+         stroke="#b3b3b3"
+         id="path224"
+         style="stroke:#4d4d4d;stroke-width:0.891738" />
+      <path
+         d="M 6.7381633,11.711444 H 22.6421 V 15.75517 H 6.7381633 Z"
          fill="#e6e6e6"
-         id="path82"
-         style="fill:#e6e6e6;stroke:#333333" />
+         id="path226"
+         style="fill:#b3b3b3;stroke-width:1.0353" />
       <path
-         d="m 2.5,10.5 h 19 v 5 h -19 z"
-         fill="#bad9ec"
-         id="path84"
-         style="fill:#b3b3b3;stroke:#333333" />
+         d="m 12.942967,25.75517 h 3.999999 v 4 h -3.999999 z"
+         fill="#3b7ec6"
+         fill-rule="evenodd"
+         id="path228"
+         style="fill:#333333" />
+      <path
+         d="m 12.942967,18.75517 h 3.999999 v 4 h -3.999999 z"
+         fill="#3b7ec6"
+         fill-rule="evenodd"
+         id="path230"
+         style="fill:#333333" />
       <g
          fill="none"
-         id="g106">
+         stroke="#b2b2b2"
+         id="g240"
+         transform="translate(5.9429665,10.75517)">
         <path
-           d="M 5,13 H 9"
-           stroke-width="2"
-           id="path86"
-           style="stroke:#666666" />
-        <path
-           d="m 11,13 h 7.999999"
-           stroke-width="2"
-           id="path88"
-           style="stroke:#666666" />
-        <path
-           d="M 5,17.5 H 9"
-           id="path90"
-           style="stroke:#808080;stroke-width:0.999474;stroke-miterlimit:4;stroke-dasharray:none" />
-        <path
-           d="m 11,17.5 h 7.999999"
-           id="path92"
+           d="M 3.5,6 V 18"
+           id="path232"
            style="stroke:#808080" />
         <path
-           d="M 5,20.5 H 9"
-           id="path94"
+           d="M 4,10.5 H 6"
+           id="path234"
            style="stroke:#808080" />
         <path
-           d="m 11,20.5 h 7.999999"
-           id="path96"
-           style="stroke:#808080" />
+           d="M 4,17.5 H 6"
+           id="path236"
+           style="fill:#000000;stroke:#808080" />
         <path
-           d="M 5,23.5 H 9"
-           id="path98"
-           style="stroke:#808080" />
-        <path
-           d="m 11,23.5 h 7.999999"
-           id="path100"
-           style="stroke:#808080" />
-        <path
-           d="M 5,26.5 H 9"
-           id="path102"
-           style="stroke:#808080" />
-        <path
-           d="m 11,26.5 h 7.999999"
-           id="path104"
-           style="stroke:#808080" />
+           d="M 0,5.47 H 17.49433"
+           stroke-width="0.936325"
+           id="path238"
+           style="fill:#333333;stroke:#4d4d4d" />
       </g>
     </g>
   </g>
