@@ -109,16 +109,6 @@
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../layer_sources.py" line="216"/>
-        <source>OGR</source>
-        <translation>OGR</translation>
-    </message>
-    <message>
-        <location filename="../layer_sources.py" line="217"/>
-        <source>GDAL</source>
-        <translation>GDAL</translation>
-    </message>
-    <message>
         <location filename="../layer_sources.py" line="218"/>
         <source>WMS/WMTS</source>
         <translation>WMS/WMTS</translation>
@@ -162,6 +152,16 @@
         <location filename="../data_sources_panel.py" line="67"/>
         <source>&amp;Data Sources</source>
         <translation>&amp;Datenquellen</translation>
+    </message>
+    <message>
+        <location filename="../layer_sources.py" line="216"/>
+        <source>Vector Files (OGR)</source>
+        <translation>Vektordateien (OGR)</translation>
+    </message>
+    <message>
+        <location filename="../layer_sources.py" line="217"/>
+        <source>Raster Files (GDAL)</source>
+        <translation>Rasterdateien (GDAL)</translation>
     </message>
 </context>
 <context>

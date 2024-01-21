@@ -213,8 +213,8 @@ def nice_provider_name(provider):
     if I find API for nice provider names.
     """
     names = {
-        'ogr': tr('OGR'),
-        'gdal': tr('GDAL'),
+        'ogr': tr('Vector Files (OGR)'),
+        'gdal': tr('Raster Files (GDAL)'),
         'wms': tr('WMS/WMTS'),
         'WFS': tr('WFS'),
         'postgres': tr('PostgreSQL'),
