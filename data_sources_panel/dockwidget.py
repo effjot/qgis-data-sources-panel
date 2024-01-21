@@ -455,6 +455,8 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.proxy_model.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.v_sources_table.setSortingEnabled(True)
         self.v_sources_table.setModel(self.proxy_model)
+        self.v_sources_table.horizontalHeader().setStretchLastSection(True)
+        self.v_sources_table.resizeColumnToContents(0)
         self.tree_model = SourcesTreeModel(self.sources)
         self.v_sources_tree.setHeaderHidden(True)
         self.v_sources_tree.setModel(self.tree_model)
