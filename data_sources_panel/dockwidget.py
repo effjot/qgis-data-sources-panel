@@ -555,7 +555,9 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             save_options)
         if error == QgsVectorFileWriter.NoError:
             self.iface.messageBar().pushMessage(
-                MSG_TAG, f'Data sources table successfully exported to {output_file}',
+                MSG_TAG,
+                'Data sources table successfully exported to '
+                f'<a href="file://{output_file}">{output_file}</a>',
                 level=Qgis.Success
             )
         else:
