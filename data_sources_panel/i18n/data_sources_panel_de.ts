@@ -1,161 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0">
+<!DOCTYPE TS>
+<TS version="2.1" language="de_DE">
 <context>
     <name>@default</name>
     <message>
         <location filename="../data_sources_panel.py" line="67"/>
         <source>&amp;Data Sources Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Datenquellen-Bedienfeld</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="52"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="190"/>
         <source>Provider</source>
-        <translation type="unfinished"></translation>
+        <translation>Datenanbieter</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="190"/>
         <source>Storage Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicherort</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="187"/>
         <source>Data Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Datenquellen</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="410"/>
         <source>&amp;Table View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tabellenansicht</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="413"/>
         <source>T&amp;ree View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Baumansicht</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="416"/>
         <source>&amp;Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle &amp;ausklappen</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="419"/>
         <source>&amp;Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle &amp;einklappen</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="425"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Export</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="428"/>
         <source>Export as &amp;Excel file</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &amp;Excel-Datei exportieren</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="430"/>
         <source>Export as &amp;CSV file</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &amp;CSV-Datei exportieren</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="536"/>
         <source>Comma Separated Values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV (Komma-getrennte Werte)</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="537"/>
         <source>Excel workbook (*.xlsx)</source>
-        <translation type="unfinished"></translation>
+        <translation>Excel-Arbeitsmappe (*.xlsx)</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="543"/>
         <source>Export Data Sources Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Datenquellen-Tabelle exportieren</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="548"/>
         <source>Export cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>Export abgebrochen</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="560"/>
         <source>Data sources table successfully exported to {output_file}</source>
-        <translation type="unfinished"></translation>
+        <translation>Datenquellen-Tabelle erfolgreich nach {output_file} exportiert</translation>
     </message>
     <message>
         <location filename="../dockwidget.py" line="568"/>
         <source>Export to {output_file} failed: {error} {message}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../layer_sources.py" line="129"/>
-        <source>DB </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../layer_sources.py" line="129"/>
-        <source>Schema </source>
-        <translation type="unfinished"></translation>
+        <translation>Export nach {output_file} fehlgeschlagen: {error} {message}</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="145"/>
         <source>(unknown)</source>
-        <translation type="unfinished"></translation>
+        <translation>(unbekannt)</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="190"/>
         <source>layerid</source>
-        <translation type="unfinished"></translation>
+        <translation>layerid</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="190"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Name</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="216"/>
         <source>OGR</source>
-        <translation type="unfinished"></translation>
+        <translation>OGR</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="217"/>
         <source>GDAL</source>
-        <translation type="unfinished"></translation>
+        <translation>GDAL</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="218"/>
         <source>WMS/WMTS</source>
-        <translation type="unfinished"></translation>
+        <translation>WMS/WMTS</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="219"/>
         <source>WFS</source>
-        <translation type="unfinished"></translation>
+        <translation>WFS</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="220"/>
         <source>PostgreSQL</source>
-        <translation type="unfinished"></translation>
+        <translation>PostgreSQL</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="221"/>
         <source>PostgreSQL Raster</source>
-        <translation type="unfinished"></translation>
+        <translation>PostgreSQL-Raster</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="222"/>
         <source>SpatiaLite</source>
-        <translation type="unfinished"></translation>
+        <translation>SpatiaLite</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="223"/>
         <source>Memory / Scratch Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporärlayer</translation>
+    </message>
+    <message>
+        <location filename="../layer_sources.py" line="129"/>
+        <source>DB</source>
+        <translation>DB</translation>
+    </message>
+    <message>
+        <location filename="../layer_sources.py" line="129"/>
+        <source>Schema</source>
+        <translation>Schema</translation>
     </message>
 </context>
 <context>
@@ -163,7 +164,7 @@
     <message>
         <location filename="../dockwidget.ui" line="14"/>
         <source>Data Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Datenquellen</translation>
     </message>
 </context>
 </TS>
