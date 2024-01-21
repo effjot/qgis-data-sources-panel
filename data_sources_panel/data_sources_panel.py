@@ -186,9 +186,12 @@ class DataSourcesPanel:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
+        if self.dockwidget:
+            self.dockwidget.hide()
+            self.dockwidget.deleteLater()
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr('&Data Source Panel'),
+                self.menu,
                 action)
             # self.iface.removeToolBarIcon(action)
         # remove the toolbar
