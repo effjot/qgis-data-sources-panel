@@ -21,7 +21,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QIcon
 
-from . import MSG_TAG
+from .tools import tr
 
 # TODO: make this a config option
 POSTGRESQL_COMBINE_PROVIDERS = True  # Combine postres and postgresraster as a single provider
@@ -127,7 +127,7 @@ class LayerSources:
             schema = decoded['schema']
             table = decoded['table']
             location = StorageLocation(
-                ('DB ' + db, 'Schema ' + schema, table),
+                (tr('DB') + ' ' + db, tr('Schema') + ' ' + schema, table),
                 f'{db}: "{schema}"."{table}"')
         elif provider == 'memory':
             location = StorageLocation()
@@ -142,7 +142,7 @@ class LayerSources:
         elif 'url' in decoded:
             location = StorageLocation(decoded['url'])
         else:
-            location = StorageLocation(None, '(unknown)')
+            location = StorageLocation(None, tr('(unknown)'))
         icon = QgsIconUtils.iconForLayer(
             QgsProject.instance().mapLayer(layerid))
         return LayerSource(
@@ -184,14 +184,14 @@ class LayerSources:
         location_sources = [s for s in self.sources if s.location == location]
         return LayerSources(location_sources)
 
-    def as_memory_layer(self, name: str = 'Data Sources'):
+    def as_memory_layer(self, name: str = tr('Data Sources')):
         mem_layer = QgsVectorLayer('NoGeometry', name, 'memory')
         prov = mem_layer.dataProvider()
         prov.addAttributes([
-            QgsField('layerid', QVariant.String),
-            QgsField('Name', QVariant.String),
-            QgsField('Provider', QVariant.String),
-            QgsField('Storage Location', QVariant.String)
+            QgsField(tr('layerid'), QVariant.String),
+            QgsField(tr('Name'), QVariant.String),
+            QgsField(tr('Provider'), QVariant.String),
+            QgsField(tr('Storage Location'), QVariant.String)
         ])
         mem_layer.updateFields()
         features = [
@@ -213,14 +213,14 @@ def nice_provider_name(provider):
     if I find API for nice provider names.
     """
     names = {
-        'ogr': 'OGR',
-        'gdal': 'GDAL',
-        'wms': 'WMS/WMTS',
-        'WFS': 'WFS',
-        'postgres': 'PostgreSQL',
-        'postgresraster': 'PostgreSQL Raster',
-        'spatialite': 'SpatiaLite',
-        'memory': 'Memory / Scratch Layer'
+        'ogr': tr('OGR'),
+        'gdal': tr('GDAL'),
+        'wms': tr('WMS/WMTS'),
+        'WFS': tr('WFS'),
+        'postgres': tr('PostgreSQL'),
+        'postgresraster': tr('PostgreSQL Raster'),
+        'spatialite': tr('SpatiaLite'),
+        'memory': tr('Memory / Scratch Layer')
     }
     return names.get(provider, provider)
 

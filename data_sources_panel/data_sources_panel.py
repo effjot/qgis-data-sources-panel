@@ -31,6 +31,7 @@ from qgis.PyQt.QtWidgets import QAction
 from .dockwidget import DataSourcesDockWidget
 # Initialize Qt resources from file resources.py
 from .resources import *
+from .tools import tr
 
 
 class DataSourcesPanel:
@@ -55,7 +56,7 @@ class DataSourcesPanel:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'DataSourcesPanel_{}.qm'.format(locale))
+            'data_sources_panel_{}.qm'.format(locale))
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
@@ -63,27 +64,12 @@ class DataSourcesPanel:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Data Sources Panel')
+        self.menu = tr('&Data Sources')
+        self.menu_item = tr('&Data Sources Panel')
         # self.toolbar = self.iface.addToolBar(u'DataSourcesPanel')
         # self.toolbar.setObjectName(u'DataSourcesPanel')
-
         self.pluginIsActive = False
         self.dockwidget = None
-
-    # noinspection PyMethodMayBeStatic
-    def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('DataSourcesPanel', message)
 
     def add_action(
         self,
@@ -163,12 +149,12 @@ class DataSourcesPanel:
         icon_path = ':/icon.svg'
         self.add_action(
             icon_path,
-            text=self.tr('Data Sources Panel'),
+            text=self.menu_item,
             add_to_toolbar=False,
             callback=self.run,
             parent=self.iface.mainWindow())
         self.act_help = QAction(
-            QIcon(icon_path), 'Data Sources Panel', self.iface.mainWindow())
+            QIcon(icon_path), self.menu_item, self.iface.mainWindow())
         self.act_help.triggered.connect(self.show_help)
         self.iface.pluginHelpMenu().addAction(self.act_help)
 
@@ -190,9 +176,7 @@ class DataSourcesPanel:
             self.dockwidget.hide()
             self.dockwidget.deleteLater()
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.menu,
-                action)
+            self.iface.removePluginMenu(self.menu, action)
             # self.iface.removeToolBarIcon(action)
         # remove the toolbar
         # del self.toolbar

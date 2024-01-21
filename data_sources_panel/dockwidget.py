@@ -37,8 +37,9 @@ from qgis.PyQt import QtCore, QtWidgets, uic
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMenu, QToolButton
 
-from . import MSG_TAG
 from .layer_sources import LayerSources, nice_provider_name
+from .tools import MSG_TAG, tr
+
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'dockwidget.ui'))
@@ -48,7 +49,9 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
         super().__init__()
         self._data = data
-        self._header = ['Layer', 'Provider', 'Storage Location']
+        self._header = [tr('Layer'),
+                        tr('Provider'),
+                        tr('Storage Location')]
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -202,7 +205,7 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, data: LayerSources):
         super().__init__()
         self._data = data  # original / “flat” data
-        self.root_item = TreeItem('Data Sources', parent=None)
+        self.root_item = TreeItem(tr('Data Sources'), parent=None)
         self.setup_model_tree(data)
 
     def clear(self):
@@ -406,26 +409,26 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Toolbar
         self.act_tableview = QAction(
             QgsApplication.getThemeIcon('/mActionOpenTable.svg'),
-            '&Table View', self)
+            tr('&Table View'), self)
         self.act_treeview = QAction(
             QgsApplication.getThemeIcon('/mIconTreeView.svg'),
-            'T&ree View', self)
+            tr('T&ree View'), self)
         self.act_expandall = QAction(
             QgsApplication.getThemeIcon('mActionExpandTree.svg'),
-            '&Expand All', self)
+            tr('&Expand All'), self)
         self.act_collapseall = QAction(
             QgsApplication.getThemeIcon('mActionCollapseTree.svg'),
-            '&Collapse All', self)
+            tr('&Collapse All'), self)
         self.btn_export = QToolButton()
         self.btn_export.setIcon(
             QgsApplication.getThemeIcon('mActionFileSave.svg'))
-        self.btn_export.setToolTip('Export')
+        self.btn_export.setToolTip(tr('Export'))
         self.btn_export.setAutoRaise(True)
         self.btn_export.setPopupMode(QToolButton.InstantPopup)
         self.act_export_xlsx = QAction(
-            'Export as &Excel file', self)
+            tr('Export as &Excel file'), self)
         self.act_export_csv = QAction(
-            'Export as &CSV file', self)
+            tr('Export as &CSV file'), self)
         self.menu_export = QMenu()
         self.menu_export.addAction(self.act_export_xlsx)
         self.menu_export.addAction(self.act_export_csv)
@@ -532,20 +535,20 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if file_type not in ('csv', 'xlsx'):
             raise ValueError
         file_filters = {
-            'csv': 'Comma Separated Values (*.csv)',
-            'xlsx': 'Excel workbook (*.xlsx)'
+            'csv': tr('Comma Separated Values (*.csv)'),
+            'xlsx': tr('Excel workbook (*.xlsx)')
         }
         mem_layer = self.sources.as_memory_layer()
         # self.proj.addMapLayer(mem_layer)  # for testing
         file_path = (Path(QgsSettings().value("UI/lastFileNameWidgetDir"))
                      / f'{mem_layer.name()}.{file_type}')
         output_file, _ = QFileDialog.getSaveFileName(
-            self, 'Export Data Sources Table',
+            self, tr('Export Data Sources Table'),
             str(file_path), file_filters[file_type]
         )
         if not output_file:
             self.iface.messageBar().pushMessage(
-                MSG_TAG, 'Export cancelled', level=Qgis.Info
+                MSG_TAG, tr('Export cancelled'), level=Qgis.Info
             )
             return
         save_options = QgsVectorFileWriter.SaveVectorOptions()
@@ -558,13 +561,17 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if error == QgsVectorFileWriter.NoError:
             self.iface.messageBar().pushMessage(
                 MSG_TAG,
-                'Data sources table successfully exported to '
-                f'<a href="file://{output_file}">{output_file}</a>',
+                tr(
+                    'Data sources table successfully exported to {output_file}'
+                ).format(output_file=f'<a href="file://{output_file}">{output_file}</a>'),
                 level=Qgis.Success
             )
         else:
             self.iface.messageBar().pushMessage(
-                MSG_TAG, f'Export to {output_file} failed: {error} {message}',
+                MSG_TAG,
+                tr(
+                    'Export to {output_file} failed: {error} {message}'
+                ).format(output_file=output_file, error=error),
                 level=Qgis.Critical
             )
 
