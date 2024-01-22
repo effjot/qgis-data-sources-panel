@@ -15,8 +15,10 @@ from qgis.core import (
     QgsMessageLog,
     QgsProject,
     QgsProviderRegistry,
+    QgsRasterLayer,
     QgsVectorLayer,
-    QgsVectorLayerUtils
+    QgsVectorLayerUtils,
+    QgsWkbTypes
 )
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QIcon
@@ -51,11 +53,16 @@ class StorageLocation:
 @dataclass
 class LayerSource:
     layerid: str
+    geom_type: str
     name: str
     crs_authid: str
     provider: str
     location: StorageLocation
     icon: QIcon
+
+    def __post_init__(self):
+        if not self.crs_authid and self.geom_type != 'NoGeometry':
+            self.crs_authid = tr('no CRS')
 
     def num_fields(self):
         return len(fields(self))
@@ -148,9 +155,15 @@ class LayerSources:
             location = StorageLocation(None, tr('(unknown)'))
         icon = QgsIconUtils.iconForLayer(
             QgsProject.instance().mapLayer(layerid))
+        if isinstance(layer, QgsVectorLayer):
+            geom_type = QgsWkbTypes.displayString(layer.wkbType())
+        elif isinstance(layer, QgsRasterLayer):
+            geom_type = 'Raster'
+        else:
+            geom_type = ''
         crs_authid = provider.crs().authid()
         return LayerSource(
-            layerid=layerid, name=layer.name(), crs_authid=crs_authid,
+            layerid=layerid, name=layer.name(), geom_type=geom_type, crs_authid=crs_authid,
             provider=provider_name, location=location, icon=icon)
 
     def num_layers(self) -> int:
@@ -194,6 +207,7 @@ class LayerSources:
         prov.addAttributes([
             QgsField(tr('layerid'), QVariant.String),
             QgsField(tr('Name'), QVariant.String),
+            QgsField(tr('Geometry (WKB type)'), QVariant.String),
             QgsField(tr('CRS'), QVariant.String),
             QgsField(tr('Provider'), QVariant.String),
             QgsField(tr('Storage Location'), QVariant.String)
@@ -202,8 +216,8 @@ class LayerSources:
         features = [
             QgsVectorLayerUtils.createFeature(
                 mem_layer, QgsGeometry(), {
-                    0: src.layerid, 1: src.name, 2: src.crs_authid,
-                    3: nice_provider_name(src.provider), 4: str(src.location)
+                    0: src.layerid, 1: src.name, 2: src.geom_type, 3: src.crs_authid,
+                    4: nice_provider_name(src.provider), 5: str(src.location)
                 })
             for src in self.sources
         ]

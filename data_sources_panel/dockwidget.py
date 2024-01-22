@@ -59,7 +59,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             src = self._data.by_index(index.row())
-            item = src.by_index(index.column() + 1)  # skip layerid field
+            item = src.by_index(index.column() + 2)  # skip layerid and geom_type fields
             if index.column() == 2:
                 return nice_provider_name(item)
             return str(item)
@@ -71,7 +71,7 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
         return self._data.num_layers()
 
     def columnCount(self, index):
-        return self._data.num_fields() - 2  # skip layerid, icon fields
+        return self._data.num_fields() - 3  # skip layerid, geom_type, icon fields
 
     def headerData(self, index, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
