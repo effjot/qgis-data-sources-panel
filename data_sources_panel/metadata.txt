@@ -24,7 +24,7 @@ repository=https://github.com/effjot/qgis-data-sources-panel
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-  0.2.1 Updated documentation
+  0.2.1 Show CRS info, updated documentation
   0.2.0 German translation, other small improvements
   0.1.0 Initial experimental release
 

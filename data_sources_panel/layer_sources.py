@@ -52,6 +52,7 @@ class StorageLocation:
 class LayerSource:
     layerid: str
     name: str
+    crs_authid: str
     provider: str
     location: StorageLocation
     icon: QIcon
@@ -118,18 +119,20 @@ class LayerSources:
     def get_source_from_layer(self, layer, layerid: str = None):
         if not layerid:
             layerid = layer.id()
-        provider = layer.dataProvider().name()
-        decoded = QgsProviderRegistry.instance().decodeUri(provider, layer.publicSource())
-        if provider in ('postgres', 'postgresraster'):
+        provider = layer.dataProvider()
+        provider_name = provider.name()
+        decoded = QgsProviderRegistry.instance().decodeUri(
+            provider_name, layer.publicSource())
+        if provider_name in ('postgres', 'postgresraster'):
             if POSTGRESQL_COMBINE_PROVIDERS:
-                provider = 'postgres'
+                provider_name = 'postgres'
             db = decoded['dbname']
             schema = decoded['schema']
             table = decoded['table']
             location = StorageLocation(
                 (tr('DB') + ' ' + db, tr('Schema') + ' ' + schema, table),
                 f'{db}: "{schema}"."{table}"')
-        elif provider == 'memory':
+        elif provider_name == 'memory':
             location = StorageLocation()
         elif 'path' in decoded:
             path = decoded['path']
@@ -145,9 +148,10 @@ class LayerSources:
             location = StorageLocation(None, tr('(unknown)'))
         icon = QgsIconUtils.iconForLayer(
             QgsProject.instance().mapLayer(layerid))
+        crs_authid = provider.crs().authid()
         return LayerSource(
-            layerid=layerid, name=layer.name(),
-            provider=provider, location=location, icon=icon)
+            layerid=layerid, name=layer.name(), crs_authid=crs_authid,
+            provider=provider_name, location=location, icon=icon)
 
     def num_layers(self) -> int:
         return len(self.sources)
@@ -160,7 +164,7 @@ class LayerSources:
         return list(set(provs))
 
     def locations(self):
-        locs = [s.location for s in self.sources]
+        locs = [(s.location, s.crs_authid) for s in self.sources]
         return list(set(locs))
 
     def index(self, src: LayerSource) -> int:
@@ -184,12 +188,13 @@ class LayerSources:
         location_sources = [s for s in self.sources if s.location == location]
         return LayerSources(location_sources)
 
-    def as_memory_layer(self, name: str = tr('Data Sources')):
+    def as_memory_layer(self, name: str = 'Data Sources'):
         mem_layer = QgsVectorLayer('NoGeometry', name, 'memory')
         prov = mem_layer.dataProvider()
         prov.addAttributes([
             QgsField(tr('layerid'), QVariant.String),
             QgsField(tr('Name'), QVariant.String),
+            QgsField(tr('CRS'), QVariant.String),
             QgsField(tr('Provider'), QVariant.String),
             QgsField(tr('Storage Location'), QVariant.String)
         ])
@@ -197,8 +202,8 @@ class LayerSources:
         features = [
             QgsVectorLayerUtils.createFeature(
                 mem_layer, QgsGeometry(), {
-                    0: src.layerid, 1: src.name, 2: nice_provider_name(src.provider),
-                    3: str(src.location)
+                    0: src.layerid, 1: src.name, 2: src.crs_authid,
+                    3: nice_provider_name(src.provider), 4: str(src.location)
                 })
             for src in self.sources
         ]

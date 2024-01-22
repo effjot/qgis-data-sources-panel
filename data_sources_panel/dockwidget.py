@@ -49,15 +49,18 @@ class SourcesTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: LayerSources):
         super().__init__()
         self._data = data
-        self._header = [tr('Layer'),
-                        tr('Provider'),
-                        tr('Storage Location')]
+        self._header = [
+            tr('Layer'),
+            tr('CRS'),
+            tr('Provider'),
+            tr('Storage Location')
+        ]
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
             src = self._data.by_index(index.row())
             item = src.by_index(index.column() + 1)  # skip layerid field
-            if index.column() == 1:
+            if index.column() == 2:
                 return nice_provider_name(item)
             return str(item)
         if role == Qt.DecorationRole:
@@ -275,12 +278,13 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             self.root_item.append_child(prov_item)
             prov_sources = data.by_provider(prov)
             locations = prov_sources.locations()
-            # loc_common = locations_common_part(locations)  # FIXME: for no, skip flattening common parts; first, get adding and removing right
-            for loc in locations:
+            # loc_common = locations_common_part(locations)  # FIXME: for now, skip flattening common parts; first, get adding and removing right
+            for loc, crs_authid in locations:
+                crs = f' [{crs_authid}]' if crs_authid else ''
                 if loc.is_empty():
                     loc_item = prov_item
                 elif loc.is_deep():
-                    loc_item = TreeItem(str(loc.hierarchical[-1]),
+                    loc_item = TreeItem(str(loc.hierarchical[-1]) + crs,
                                         'location', parent=None)
                     # if loc_common and prov in ('ogr', 'gdal'):
                     #     common_part = str(
@@ -291,11 +295,14 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
                     where = loc.hierarchical[:-1]
                     prov_item.insert_in_tree(loc_item, where)
                 else:
-                    loc_item = TreeItem(str(loc), 'location', prov_item)
+                    loc_item = TreeItem(str(loc) + crs, 'location', prov_item)
                     prov_item.append_child(loc_item)
                 sources = prov_sources.by_location(loc)
                 for src in sources:
-                    src_item = TreeItem(src, 'layer', loc_item)
+                    src_data = src
+                    if loc.is_empty():
+                        src_data.name += crs
+                    src_item = TreeItem(src_data, 'layer', loc_item)
                     loc_item.append_child(src_item)
 
     def add_source_begin(self):
@@ -311,10 +318,11 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         # locations = prov_sources.locations()
         # loc_common = locations_common_part(locations)  # FIXME: handle case with new common_part
         loc = src.location
+        crs = f' [{src.crs_authid}]' if src.crs_authid else ''
         if loc.is_empty():
             loc_item = prov_item
         elif loc.is_deep():
-            loc_item = TreeItem(str(loc.hierarchical[-1]),
+            loc_item = TreeItem(str(loc.hierarchical[-1]) + crs,
                                 'location', parent=None)
             # if loc_common and prov in ('ogr', 'gdal'):
             #     common_part = str(
@@ -327,9 +335,12 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         else:
             loc_item = prov_item.child_by_data(str(loc))
             if not loc_item:
-                loc_item = TreeItem(str(loc), 'location', prov_item)
+                loc_item = TreeItem(str(loc) + crs, 'location', prov_item)
             prov_item.append_child(loc_item)
-        src_item = TreeItem(src, 'layer', loc_item)
+        src_data = src
+        if loc.is_empty():
+            src_data.name += crs
+        src_item = TreeItem(src_data, 'layer', loc_item)
         loc_item.append_child(src_item)
         self.layoutChanged.emit()
 
@@ -341,6 +352,7 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         # locations = prov_sources.locations()
         # loc_common = locations_common_part(locations)
         loc = src.location
+        crs = f' [{src.crs_authid}]' if src.crs_authid else ''
         if loc.is_empty():
             loc_item = prov_item
         elif loc.is_deep():
@@ -350,13 +362,14 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
             #     remainder = loc.hierarchical[loc_common:]
             #     where = (common_part,) + remainder
             # else:
-            where = loc.hierarchical
+            where = list(loc.hierarchical)  # tuple is immutable
+            where[-1] += crs
             loc_item = prov_item
             for node in where:
                 loc_item = loc_item.child_by_data(node)
         else:
-            loc_item = prov_item.child_by_data(str(loc))
-        src_item = loc_item.child_by_data(src.name)
+            loc_item = prov_item.child_by_data(str(loc) + crs)
+        src_item = loc_item.child_by_data(src.name)  # UGLY: src.name now already contains crs
         loc_item.remove_child(src_item)
         base_for_pruning = loc_item.find_base_for_pruning()
         if base_for_pruning:
@@ -534,12 +547,12 @@ class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def export(self, file_type: str):
         if file_type not in ('csv', 'xlsx'):
             raise ValueError
+        mem_layer = self.sources.as_memory_layer(tr('Data Sources'))
+        # self.proj.addMapLayer(mem_layer)  # for testing
         file_filters = {
             'csv': tr('Comma Separated Values (*.csv)'),
             'xlsx': tr('Excel workbook (*.xlsx)')
         }
-        mem_layer = self.sources.as_memory_layer()
-        # self.proj.addMapLayer(mem_layer)  # for testing
         file_path = (Path(QgsSettings().value("UI/lastFileNameWidgetDir"))
                      / f'{mem_layer.name()}.{file_type}')
         output_file, _ = QFileDialog.getSaveFileName(
