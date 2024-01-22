@@ -6,12 +6,14 @@
 name=Data Sources Panel
 qgisMinimumVersion=3.22
 description=Panel/dock with overview of layer data sources
-version=0.2.0
+version=0.2.1
 author=Florian Jenn
 email=devel@effjot.net
 
 about=Show layer data sources in a panel, as table or as tree grouped by data provider and export to CSV/Excel files.
   Data source information for each layer is presented as its data provider and its “storage location”, i.e. directory+file on the harddrive or database+schema+table for a PostGIS layer.
+  This is related to the “TocTable” plugin, which produces a static table of the layer data sources with more details. However,the ”Data Sources Panel” offers an additional tree view, and both views are dynamic, i. e. they follow changes to the layers.
+  This plugin provides a similar experience as the “List by Source“ view in the ESRI ArcGIS Table of Contents.
 
 tracker=https://github.com/effjot/qgis-data-sources-panel/issues
 repository=https://github.com/effjot/qgis-data-sources-panel
@@ -22,6 +24,7 @@ repository=https://github.com/effjot/qgis-data-sources-panel
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  0.2.1 Updated documentation
   0.2.0 German translation, other small improvements
   0.1.0 Initial experimental release
 

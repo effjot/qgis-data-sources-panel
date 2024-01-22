@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Documentation for Data Source Panel
-===================================
+Documentation for Data Sources Panel
+====================================
 
 .. toctree::
    :maxdepth: 2
@@ -20,6 +20,20 @@ CSV/Excel files.
 Data source information for each layer is presented as its *data
 provider* and its “*storage location*”, i.e. directory+file on the
 harddrive or database+schema+table for a PostGIS layer.
+
+
+Similar tools
+-------------
+
+This is related to the
+“`TocTable <https://github.com/Korto19/TocTable>`_”
+plugin, which produces a static table of the layer data sources with
+more details. However,the ”Data Sources Panel” offers an additional
+tree view, and both views are dynamic, i. e. they follow changes to
+the layers.
+
+This plugin provides a similar experience as the “List by Source“ view
+in the ESRI ArcGIS Table of Contents.
 
 
 Usage
