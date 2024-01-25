@@ -25,7 +25,7 @@ import os.path
 
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QTranslator, QUrl
 from qgis.PyQt.QtGui import QDesktopServices, QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QMenu
 
 # Import the code for the DockWidget
 from .dockwidget import DataSourcesDockWidget
@@ -64,10 +64,14 @@ class DataSourcesPanel:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = tr('&Data Sources')
-        self.menu_item = tr('&Data Sources Panel')
-        # self.toolbar = self.iface.addToolBar(u'DataSourcesPanel')
-        # self.toolbar.setObjectName(u'DataSourcesPanel')
+        self.parent_menu = None
+        self.menu = None
+        self.menu_item = tr('&Data Sources')
+        # for Plugin menu:
+        # self.parent_menu = self.iface.pluginMenu()
+        # self.menu = self.parent_menu.addMenu(tr('&Data Sources'))
+        # self.menu_item = tr('&Data Sources Panel')
+        self.toolbar = self.iface.pluginToolBar()
         self.pluginIsActive = False
         self.dockwidget = None
 
@@ -77,8 +81,8 @@ class DataSourcesPanel:
         text,
         callback,
         enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
+        add_to_menu=None,
+        add_to_toolbar=False,
         status_tip=None,
         whats_this=None,
         parent=None):
@@ -98,12 +102,12 @@ class DataSourcesPanel:
             by default. Defaults to True.
         :type enabled_flag: bool
 
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
+        :param add_to_menu: Menu to which action should be added. Set to None
+            if action should not be added to a menu. Defaults to False.
+        :type add_to_menu: QMenu
 
         :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
+            be added to the toolbar. Defaults to False.
         :type add_to_toolbar: bool
 
         :param status_tip: Optional text to show in a popup when mouse pointer
@@ -133,30 +137,30 @@ class DataSourcesPanel:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # self.toolbar.addAction(action)
-            pass
+            self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            add_to_menu.addAction(action)
 
-        self.actions.append(action)
+        self.actions.append((action, add_to_menu, add_to_toolbar))
         return action
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         icon_path = ':/icon.svg'
+        # self.add_action(
+        #     icon_path,
+        #     text=self.menu_item,
+        #     add_to_menu=None,  #self.menu,
+        #     callback=self.run,
+        #     parent=self.iface.mainWindow())
         self.add_action(
             icon_path,
             text=self.menu_item,
-            add_to_toolbar=False,
-            callback=self.run,
+            add_to_menu=self.iface.pluginHelpMenu(),
+            callback=self.show_help,
             parent=self.iface.mainWindow())
-        self.act_help = QAction(
-            QIcon(icon_path), self.menu_item, self.iface.mainWindow())
-        self.act_help.triggered.connect(self.show_help)
-        self.iface.pluginHelpMenu().addAction(self.act_help)
+        self.run()
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -175,14 +179,15 @@ class DataSourcesPanel:
         if self.dockwidget:
             self.dockwidget.hide()
             self.dockwidget.deleteLater()
-        for action in self.actions:
-            self.iface.removePluginMenu(self.menu, action)
-            # self.iface.removeToolBarIcon(action)
+        for action, menu, toolbar in self.actions:
+            if menu:
+                menu.removeAction(action)
+            if toolbar:
+                self.toolbar.removeToolBarIcon(action)
+        if self.parent_menu:
+            self.parent_menu.removeAction(self.menu.menuAction())
         # remove the toolbar
-        # del self.toolbar
-        if self.act_help:
-            self.iface.pluginHelpMenu().removeAction(self.act_help)
-            del self.act_help
+        del self.toolbar
 
     def run(self):
         """Run method that loads and starts the plugin"""

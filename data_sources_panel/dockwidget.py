@@ -33,6 +33,7 @@ from qgis.core import (
     QgsSettings,
     QgsVectorFileWriter
 )
+from qgis.gui import QgsDockWidget
 from qgis.PyQt import QtCore, QtWidgets, uic
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMenu, QToolButton
@@ -399,7 +400,7 @@ class SourcesTreeModel(QtCore.QAbstractItemModel):
         self.endResetModel()
 
 
-class DataSourcesDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
+class DataSourcesDockWidget(QgsDockWidget, FORM_CLASS):  #QtWidgets.QDockWidget
     closingPlugin = pyqtSignal()
 
     def __init__(self, iface, parent=None):
