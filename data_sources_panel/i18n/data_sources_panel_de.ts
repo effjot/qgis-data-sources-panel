@@ -4,12 +4,12 @@
 <context>
     <name>@default</name>
     <message>
-        <location filename="../data_sources_panel.py" line="68"/>
+        <location filename="../data_sources_panel.py" line="150"/>
         <source>&amp;Data Sources Panel</source>
         <translation>&amp;Datenquellen-Bedienfeld</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="53"/>
+        <location filename="../dockwidget.py" line="54"/>
         <source>Layer</source>
         <translation>Layer</translation>
     </message>
@@ -24,72 +24,72 @@
         <translation>Speicherort</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="553"/>
+        <location filename="../dockwidget.py" line="551"/>
         <source>Data Sources</source>
         <translation>Datenquellen</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="426"/>
+        <location filename="../dockwidget.py" line="424"/>
         <source>&amp;Table View</source>
         <translation>&amp;Tabellenansicht</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="429"/>
+        <location filename="../dockwidget.py" line="427"/>
         <source>T&amp;ree View</source>
         <translation>&amp;Baumansicht</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="432"/>
+        <location filename="../dockwidget.py" line="430"/>
         <source>&amp;Expand All</source>
         <translation>Alle &amp;ausklappen</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="435"/>
+        <location filename="../dockwidget.py" line="433"/>
         <source>&amp;Collapse All</source>
         <translation>Alle &amp;einklappen</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="441"/>
+        <location filename="../dockwidget.py" line="439"/>
         <source>Export</source>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="444"/>
+        <location filename="../dockwidget.py" line="442"/>
         <source>Export as &amp;Excel file</source>
         <translation>Als &amp;Excel-Datei exportieren</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="446"/>
+        <location filename="../dockwidget.py" line="444"/>
         <source>Export as &amp;CSV file</source>
         <translation>Als &amp;CSV-Datei exportieren</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="556"/>
+        <location filename="../dockwidget.py" line="554"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>CSV (Komma-getrennte Werte)</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="557"/>
+        <location filename="../dockwidget.py" line="555"/>
         <source>Excel workbook (*.xlsx)</source>
         <translation>Excel-Arbeitsmappe (*.xlsx)</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="561"/>
+        <location filename="../dockwidget.py" line="559"/>
         <source>Export Data Sources Table</source>
         <translation>Datenquellen-Tabelle exportieren</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="566"/>
+        <location filename="../dockwidget.py" line="564"/>
         <source>Export cancelled</source>
         <translation>Export abgebrochen</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="578"/>
+        <location filename="../dockwidget.py" line="576"/>
         <source>Data sources table successfully exported to {output_file}</source>
         <translation>Datenquellen-Tabelle erfolgreich nach {output_file} exportiert</translation>
     </message>
     <message>
-        <location filename="../dockwidget.py" line="586"/>
+        <location filename="../dockwidget.py" line="584"/>
         <source>Export to {output_file} failed: {error} {message}</source>
         <translation>Export nach {output_file} fehlgeschlagen: {error} {message}</translation>
     </message>
@@ -147,11 +147,6 @@
         <location filename="../layer_sources.py" line="139"/>
         <source>Schema</source>
         <translation>Schema</translation>
-    </message>
-    <message>
-        <location filename="../data_sources_panel.py" line="67"/>
-        <source>&amp;Data Sources</source>
-        <translation>&amp;Datenquellen</translation>
     </message>
     <message>
         <location filename="../layer_sources.py" line="235"/>

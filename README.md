@@ -21,7 +21,7 @@ in the ESRI ArcGIS Table of Contents.
 
 ## Usage
 
-The panel can be opened from the Plugins menu → Data Sources Panel.
+The panel can be opened from the View menu → Panels → Data Sources.
 
 You can switch between a table view and a tree view of the layer
 sources with the first two buttons of the toolbar.

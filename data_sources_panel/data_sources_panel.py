@@ -65,27 +65,21 @@ class DataSourcesPanel:
         # Declare instance attributes
         self.actions = []
         self.parent_menu = None
-        self.menu = None
-        self.menu_item = tr('&Data Sources')
-        # for Plugin menu:
-        # self.parent_menu = self.iface.pluginMenu()
-        # self.menu = self.parent_menu.addMenu(tr('&Data Sources'))
-        # self.menu_item = tr('&Data Sources Panel')
         self.toolbar = self.iface.pluginToolBar()
         self.pluginIsActive = False
         self.dockwidget = None
 
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=None,
-        add_to_toolbar=False,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=None,
+            add_to_toolbar=False,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -124,7 +118,6 @@ class DataSourcesPanel:
             added to self.actions list.
         :rtype: QAction
         """
-
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -150,16 +143,17 @@ class DataSourcesPanel:
         icon_path = ':/icon.svg'
         # self.add_action(
         #     icon_path,
-        #     text=self.menu_item,
-        #     add_to_menu=None,  #self.menu,
+        #     text=tr('&Data Sources Panel'),
+        #     add_to_menu=self.iface.pluginMenu(),
         #     callback=self.run,
         #     parent=self.iface.mainWindow())
         self.add_action(
             icon_path,
-            text=self.menu_item,
+            text=tr('&Data Sources Panel'),
             add_to_menu=self.iface.pluginHelpMenu(),
             callback=self.show_help,
             parent=self.iface.mainWindow())
+        # immediately activate the dock, will be automatically added to Panel menu
         self.run()
 
     def onClosePlugin(self):
@@ -175,10 +169,11 @@ class DataSourcesPanel:
         self.pluginIsActive = False
 
     def unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
+        """Removes the dock, plugin menu item and icon from QGIS GUI."""
         if self.dockwidget:
             self.dockwidget.hide()
             self.dockwidget.deleteLater()
+        # remove actions from menus and toolbar
         for action, menu, toolbar in self.actions:
             if menu:
                 menu.removeAction(action)
